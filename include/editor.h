@@ -1,0 +1,1 @@
+#ifndef EDITOR_H
