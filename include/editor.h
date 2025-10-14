@@ -1,8 +1,11 @@
 #ifndef EDITOR_H
 #define EDITOR_H
 
+#include "operating_mode.h"
+
 class Editor {
-    // current operating mode
+  private:
+    OperatingMode &operating_mode;
 };
 
 #endif
