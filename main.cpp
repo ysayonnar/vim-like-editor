@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    // TODO: нужен класс буфера
+    // FIXME: писать в класс буфера
     String file_data;
     file >> file_data;
 

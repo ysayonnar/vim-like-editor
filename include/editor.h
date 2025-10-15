@@ -8,6 +8,9 @@ class Editor {
   private:
     OperatingMode &operating_mode;
     String file_name;
+
+  public:
+    // TODO: конструкторы деструкторы
 };
 
 #endif
