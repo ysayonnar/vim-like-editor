@@ -1,12 +1,12 @@
-#ifndef NORMAL_MODE_H
-#define NORMAL_MODE_H
+#ifndef INSERT_MODE_H
+#define INSERT_MODE_H
 
+#include "../string.h"
 #include "operating_mode.h"
-#include "string.h"
 
-class NormalMode : public OperatingMode {
+class InsertMode : public OperatingMode {
   private:
-    String name = "NORMAL";
+    String name = "INSERT";
     // FIXME: сделать свой контейнер вектора, где будут хранится команды
 
   public:

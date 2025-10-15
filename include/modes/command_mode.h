@@ -1,8 +1,8 @@
 #ifndef COMMAND_MODE_H
 #define COMMAND_MODE_H
 
+#include "../string.h"
 #include "operating_mode.h"
-#include "string.h"
 
 class CommandMode : public OperatingMode {
   private:

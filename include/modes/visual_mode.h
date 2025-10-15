@@ -1,12 +1,12 @@
-#ifndef INSERT_MODE_H
-#define INSERT_MODE_H
+#ifndef VISUAL_MODE_H
+#define VISUAL_MODE_H
 
+#include "../string.h"
 #include "operating_mode.h"
-#include "string.h"
 
-class InsertMode : public OperatingMode {
+class VisualMode : public OperatingMode {
   private:
-    String name = "INSERT";
+    String name = "VISUAL";
     // FIXME: сделать свой контейнер вектора, где будут хранится команды
 
   public:
