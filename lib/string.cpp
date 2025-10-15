@@ -26,6 +26,13 @@ String::String(const String &other) : data(nullptr), length(other.length), capac
 
 String::~String() { delete[] data; }
 
+char *String::get_c_style() const {
+    char *str = new char[capacity];
+    std::strcpy(str, data);
+
+    return str;
+}
+
 String String::operator+(const String &other) {
     String new_string;
 

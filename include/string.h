@@ -14,6 +14,8 @@ class String {
     String(const String &other);
     ~String();
 
+    char *get_c_style() const;
+
     String operator+(const String &other);
     String &operator+=(const String &other);
     String &operator=(const String &other);

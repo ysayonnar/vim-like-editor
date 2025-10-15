@@ -7,10 +7,12 @@
 class Command {
   private:
     Editor &editor;
-    String key_bind;
+    String key_bind_pattern;
+    bool isCancelable;
 
   public:
-    virtual void execute() const = 0;
+    virtual void
+    execute(String combination) const = 0;
     virtual void undo() const = 0;
     virtual String get_name() const = 0;
 };
