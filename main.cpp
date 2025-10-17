@@ -15,11 +15,6 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    // FIXME: писать в класс буфера
-    String file_data;
-    file >> file_data;
-
-    std::cout << file_data << std::endl;
     file.close();
 
     return 0;
