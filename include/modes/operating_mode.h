@@ -1,7 +1,9 @@
 #ifndef OPERATING_MODE_H
 #define OPERATING_MODE_H
 
-#include "editor.h"
+#include <stddef.h>
+
+class Editor;
 
 class OperatingMode {
   protected:
@@ -9,7 +11,7 @@ class OperatingMode {
 
   public:
     OperatingMode(Editor &editor) : editor(editor) {};
-    ~OperatingMode() = default;
+    virtual ~OperatingMode() = default;
 
     virtual void exit() const = 0;
     virtual void handle_input() const = 0; // FIXME: здесь возвращать КОМАНДУ
