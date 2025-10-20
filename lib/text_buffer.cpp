@@ -1,5 +1,7 @@
 #include "../include/text_buffer.h"
+#include "../include/external/colors.h"
 #include <cstring>
+#include <iomanip>
 #include <iostream>
 
 int TextBuffer::get_length() const { return length; }
@@ -28,7 +30,7 @@ void TextBuffer::prev_symbol() {
 std::ostream &operator<<(std::ostream &os, const TextBuffer &buf) {
     for (int i = 0; i < buf.length; i++) {
         if (i == buf.current_symbol_number) {
-            os << WHITE_BG << buf.data[i] << RESET;
+            os << COLOR_BG_WHITE << COLOR_BLACK << buf.data[i] << COLOR_RESET;
         } else {
             os << buf.data[i];
         }

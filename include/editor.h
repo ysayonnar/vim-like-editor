@@ -1,8 +1,11 @@
 #ifndef EDITOR_H
 #define EDITOR_H
 
+#include "modes/command_mode.h"
+#include "modes/insert_mode.h"
 #include "modes/normal_mode.h"
 #include "modes/operating_mode.h"
+#include "modes/visual_mode.h"
 #include "string.h"
 #include "text_buffer.h"
 #include <fstream>
@@ -32,7 +35,9 @@ class Editor {
     }
 
     void run();
-    void render_buffer();
+    void render();
+    void clear_screen();
+    void print_toolbar();
 };
 
 #endif

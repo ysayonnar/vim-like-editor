@@ -4,12 +4,12 @@
 #include <iostream>
 
 void NormalMode::exit() const {
-    // placeholder implementation
+    // TODO: placeholder implementation
     std::cout << "Exiting NORMAL mode" << std::endl;
 }
 
 void NormalMode::handle_input(String str) const {
-    // FIXME: переписать к хуям
+    // TODO: проверять, есть ли такая команда и если нет, возвращать что то плохое
     if (str == "l") {
         editor.buf.next_symbol();
     } else if (str == "h") {

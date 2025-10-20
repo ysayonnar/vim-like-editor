@@ -10,9 +10,10 @@ class VisualMode : public OperatingMode {
     // FIXME: сделать свой контейнер вектора, где будут хранится команды
 
   public:
-    // FIXME: конструкторы и деструкторы
+    VisualMode(Editor &editor) : OperatingMode(editor) {};
+    ~VisualMode() = default;
     void exit() const override;
-    void handle_input() const override; // FIXME: здесь возвращать КОМАНДУ
+    void handle_input(String str) const override; // FIXME: здесь возвращать КОМАНДУ
 };
 
 #endif

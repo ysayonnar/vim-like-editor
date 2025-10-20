@@ -61,6 +61,17 @@ String &String::operator+=(const String &other) {
     return *this;
 }
 
+String &String::operator+=(const char *str) {
+    *this = *this + str;
+    return *this;
+}
+
+String &String::operator+=(char c) {
+    char temp[2] = {c, '\0'};
+    *this = *this + temp;
+    return *this;
+}
+
 String &String::operator=(const String &other) {
     if (this == &other) {
         return *this;

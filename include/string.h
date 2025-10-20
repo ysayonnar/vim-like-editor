@@ -18,6 +18,8 @@ class String {
 
     String operator+(const String &other);
     String &operator+=(const String &other);
+    String &operator+=(const char *str);
+    String &operator+=(char c);
     String &operator=(const String &other);
     String &operator=(const char *str);
     String operator()(int start, int end);
