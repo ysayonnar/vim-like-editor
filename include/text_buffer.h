@@ -5,6 +5,9 @@
 #include <iostream>
 #include <istream>
 
+#define RESET "\033[0m"
+#define WHITE_BG "\033[47m"
+
 class TextBuffer {
   private:
     int length = 0;

@@ -1,21 +1,19 @@
 #ifndef OPERATING_MODE_H
 #define OPERATING_MODE_H
 
-#include <stddef.h>
+#include "../string.h"
 
 class Editor;
 
 class OperatingMode {
-  protected:
+  public:
     Editor &editor;
 
-  public:
     OperatingMode(Editor &editor) : editor(editor) {};
     virtual ~OperatingMode() = default;
 
     virtual void exit() const = 0;
-    virtual void handle_input() const = 0; // FIXME: здесь возвращать КОМАНДУ
-    virtual void execute_command() const = 0;
+    virtual void handle_input(String str) const = 0; // FIXME: здесь возвращать КОМАНДУ
 };
 
 // TODO: в классе каждой команды будет мой самописный шаблон вектора, где будyт хранится команды

@@ -13,8 +13,7 @@ class NormalMode : public OperatingMode {
     NormalMode(Editor &editor) : OperatingMode(editor) {};
     ~NormalMode() = default;
     void exit() const override;
-    void handle_input() const override; // FIXME: здесь возвращать КОМАНДУ
-    void execute_command() const override;
+    void handle_input(String str) const override; // FIXME: здесь возвращать КОМАНДУ
 };
 
 #endif

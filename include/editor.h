@@ -9,13 +9,13 @@
 #include <iostream>
 
 class Editor {
-  private:
+  public:
     OperatingMode *operating_mode;
     String filename;
     std::ifstream file;
     TextBuffer buf;
+    // TODO: курсор сделать
 
-  public:
     Editor(String filename) : filename(filename) {
         file.open(filename.get_c_style());
         if (!file.is_open()) {
@@ -32,6 +32,7 @@ class Editor {
     }
 
     void run();
+    void render_buffer();
 };
 
 #endif

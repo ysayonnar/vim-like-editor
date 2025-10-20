@@ -13,7 +13,6 @@ class InsertMode : public OperatingMode {
     // FIXME: конструкторы и деструкторы
     void exit() const override;
     void handle_input() const override; // FIXME: здесь возвращать КОМАНДУ
-    void execute_command() const override;
 };
 
 #endif

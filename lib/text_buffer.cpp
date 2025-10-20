@@ -26,7 +26,13 @@ void TextBuffer::prev_symbol() {
 }
 
 std::ostream &operator<<(std::ostream &os, const TextBuffer &buf) {
-    os << buf.data << std::endl;
+    for (int i = 0; i < buf.length; i++) {
+        if (i == buf.current_symbol_number) {
+            os << WHITE_BG << buf.data[i] << RESET;
+        } else {
+            os << buf.data[i];
+        }
+    }
     return os;
 }
 
