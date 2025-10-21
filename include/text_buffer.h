@@ -8,7 +8,6 @@ class TextBuffer {
   private:
     int length = 0;
     Slice<char *> data;
-    int current_symbol_number = 0;
     int current_pos_x = 0;
     int current_pos_y = 0;
 
@@ -19,7 +18,6 @@ class TextBuffer {
     ~TextBuffer() = default;
 
     int get_length() const;
-    int get_current_symbol_number() const;
     int get_current_pos_x() const;
     int get_current_pos_y() const;
 

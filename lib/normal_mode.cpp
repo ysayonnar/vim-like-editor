@@ -19,6 +19,10 @@ void NormalMode::handle_input(String str) const {
         editor.buf.next_symbol();
     } else if (str == "h") {
         editor.buf.prev_symbol();
+    } else if (str == "j") {
+        editor.buf.next_line();
+    } else if (str == "k") {
+        editor.buf.prev_line();
     } else {
         throw UnknownCommand("bad pattern");
     }

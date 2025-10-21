@@ -8,26 +8,47 @@
 #include <string>
 
 int TextBuffer::get_length() const { return length; }
-int TextBuffer::get_current_symbol_number() const { return current_symbol_number; }
 int TextBuffer::get_current_pos_x() const { return current_pos_x; }
 int TextBuffer::get_current_pos_y() const { return current_pos_y; }
 
 void TextBuffer::next_symbol() {
-    if (current_symbol_number == length - 1 || data[current_pos_y][current_pos_x] == '\n') {
+    if (current_pos_x >= std::strlen(data[current_pos_y]) - 1) {
         return;
     }
 
-    current_symbol_number++;
-    current_pos_x++;
+    if (std::strlen(data[current_pos_y]) != 1) {
+        current_pos_x++;
+    }
 }
 
 void TextBuffer::prev_symbol() {
-    if (current_symbol_number == 0 || current_pos_x == 0) {
+    if (current_pos_x == 0) {
         return;
     }
 
-    current_symbol_number--;
     current_pos_x--;
+}
+
+void TextBuffer::next_line() {
+    if (current_pos_y == data.get_length() - 1) {
+        return;
+    }
+
+    current_pos_y++;
+    if (current_pos_x >= std::strlen(data[current_pos_y])) {
+        current_pos_x = std::strlen(data[current_pos_y]) - 1;
+    }
+}
+
+void TextBuffer::prev_line() {
+    if (current_pos_y == 0) {
+        return;
+    }
+
+    current_pos_y--;
+    if (current_pos_x >= std::strlen(data[current_pos_y])) {
+        current_pos_x = std::strlen(data[current_pos_y]) - 1;
+    }
 }
 
 std::ostream &operator<<(std::ostream &os, const TextBuffer &buf) {
@@ -39,7 +60,7 @@ std::ostream &operator<<(std::ostream &os, const TextBuffer &buf) {
         }
 
         int len = std::strlen(buf.data[i]);
-        for (int j = 0; j < len - 1; j++) {
+        for (int j = 0; j < len; j++) {
             if (i == buf.current_pos_y && j == buf.current_pos_x) {
                 std::cout << COLOR_BG_WHITE << COLOR_BLACK << buf.data[i][j] << COLOR_RESET;
             } else {
@@ -61,8 +82,7 @@ std::istream &operator>>(std::istream &is, TextBuffer &buf) {
 
     buf.length = 0;
     buf.current_pos_x = 0;
-    buf.current_pos_y = 10;
-    buf.current_symbol_number = 0;
+    buf.current_pos_y = 0;
 
     std::string line;
     while (std::getline(is, line)) {
