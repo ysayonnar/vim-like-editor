@@ -2,6 +2,7 @@
 #include "../include/exceptions/unknown_command.h"
 #include "../include/external/colors.h"
 #include "../include/external/conio.h"
+#include <iomanip>
 #include <sys/ioctl.h>
 
 void Editor::run() {
@@ -57,7 +58,8 @@ void Editor::print_toolbar() {
         std::cout << COLOR_BG_BRIGHT_CYAN << COLOR_BLACK << " COMMAND " << COLOR_RESET;
     }
 
-    std::cout << "\tCommand prompt: " << command_input;
+    std::cout << "\tcommand prompt: " << std::setw(10) << command_input;
+    std::cout << "\tfile: " << filename;
 
     // TODO:  выводить номер строки и тп
 }

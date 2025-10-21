@@ -1,22 +1,22 @@
 #ifndef TEXT_BUFFER_H
 #define TEXT_BUFFER_H
 
+#include "containers/slice.h"
 #include <iostream>
-#include <istream>
 
 class TextBuffer {
   private:
     int length = 0;
-    char *data = nullptr; // TODO: подумать над хранением и изменением, мб сделать построчную запись, но тогда нужен свой контейнер слайс-вектор
+    Slice<char *> data;
     int current_symbol_number = 0;
     int current_pos_x = 0;
     int current_pos_y = 0;
 
   public:
-    TextBuffer() {}
-    ~TextBuffer() {
-        delete[] data;
-    }
+    TextBuffer() {
+        data = Slice<char *>();
+    };
+    ~TextBuffer() = default;
 
     int get_length() const;
     int get_current_symbol_number() const;

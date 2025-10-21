@@ -1,7 +1,11 @@
 #include "../include/text_buffer.h"
 #include "../include/external/colors.h"
+#include <cstdlib>
 #include <cstring>
+#include <iomanip>
 #include <iostream>
+#include <math.h>
+#include <string>
 
 int TextBuffer::get_length() const { return length; }
 int TextBuffer::get_current_symbol_number() const { return current_symbol_number; }
@@ -9,7 +13,7 @@ int TextBuffer::get_current_pos_x() const { return current_pos_x; }
 int TextBuffer::get_current_pos_y() const { return current_pos_y; }
 
 void TextBuffer::next_symbol() {
-    if (current_symbol_number == length - 1 || data[current_symbol_number + 1] == '\n' || data[current_symbol_number] == '\n') {
+    if (current_symbol_number == length - 1 || data[current_pos_y][current_pos_x] == '\n') {
         return;
     }
 
@@ -27,12 +31,22 @@ void TextBuffer::prev_symbol() {
 }
 
 std::ostream &operator<<(std::ostream &os, const TextBuffer &buf) {
-    for (int i = 0; i < buf.length; i++) {
-        if (i == buf.current_symbol_number) {
-            os << COLOR_BG_WHITE << COLOR_BLACK << buf.data[i] << COLOR_RESET;
+    for (int i = 0; i < buf.data.get_length(); i++) {
+        if (i == buf.current_pos_y) {
+            std::cout << COLOR_BRIGHT_GREEN << STYLE_BOLD << std::left << std::setw(5) << buf.current_pos_y + 1 << "\t" << COLOR_RESET;
         } else {
-            os << buf.data[i];
+            std::cout << COLOR_MAGENTA << std::right << std::setw(5) << std::abs(buf.current_pos_y - i) << "\t" << COLOR_RESET;
         }
+
+        int len = std::strlen(buf.data[i]);
+        for (int j = 0; j < len - 1; j++) {
+            if (i == buf.current_pos_y && j == buf.current_pos_x) {
+                std::cout << COLOR_BG_WHITE << COLOR_BLACK << buf.data[i][j] << COLOR_RESET;
+            } else {
+                std::cout << buf.data[i][j];
+            }
+        }
+        std::cout << std::endl;
     }
 
     // FIXME: нужно учитывать длину экрана
@@ -40,21 +54,23 @@ std::ostream &operator<<(std::ostream &os, const TextBuffer &buf) {
 }
 
 std::istream &operator>>(std::istream &is, TextBuffer &buf) {
-    if (buf.data) {
-        delete[] buf.data;
-        buf.data = nullptr;
+    for (Slice<char *>::Iterator it = buf.data.begin(); it != buf.data.end(); ++it) {
+        delete[] *it;
     }
+    buf.data.clear();
+
     buf.length = 0;
     buf.current_pos_x = 0;
-    buf.current_pos_y = 0;
+    buf.current_pos_y = 10;
     buf.current_symbol_number = 0;
 
-    std::string temp((std::istreambuf_iterator<char>(is)), std::istreambuf_iterator<char>());
+    std::string line;
+    while (std::getline(is, line)) {
+        char *cstr = new char[line.size() + 1];
+        std::memcpy(cstr, line.c_str(), line.size() + 1);
+        buf.data.push(cstr);
+    }
 
-    buf.length = temp.size();
-
-    buf.data = new char[buf.length + 1];
-    std::memcpy(buf.data, temp.c_str(), buf.length + 1);
-
+    buf.length = buf.data.get_length();
     return is;
 }
