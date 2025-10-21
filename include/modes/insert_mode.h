@@ -10,7 +10,7 @@ class InsertMode : public OperatingMode {
     // FIXME: сделать свой контейнер вектора, где будут хранится команды
 
   public:
-    InsertMode(Editor &editor) : OperatingMode(editor) {};
+    InsertMode(Editor &editor) : OperatingMode(editor, false) {};
     ~InsertMode() = default;
     void exit() const override;
     void handle_input(String str) const override; // FIXME: здесь возвращать КОМАНДУ

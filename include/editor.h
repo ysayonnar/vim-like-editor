@@ -17,7 +17,7 @@ class Editor {
     String filename;
     std::ifstream file;
     TextBuffer buf;
-    // TODO: курсор сделать
+    String command_input = "";
 
     Editor(String filename) : filename(filename) {
         file.open(filename.get_c_style());

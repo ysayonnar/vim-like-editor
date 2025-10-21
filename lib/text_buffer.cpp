@@ -35,6 +35,8 @@ std::ostream &operator<<(std::ostream &os, const TextBuffer &buf) {
             os << buf.data[i];
         }
     }
+
+    // FIXME: нужно учитывать длину экрана
     return os;
 }
 

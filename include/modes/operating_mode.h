@@ -8,8 +8,9 @@ class Editor;
 class OperatingMode {
   public:
     Editor &editor;
+    bool is_input_printable = false;
 
-    OperatingMode(Editor &editor) : editor(editor) {};
+    OperatingMode(Editor &editor, bool is_input_printable) : editor(editor), is_input_printable(is_input_printable) {};
     virtual ~OperatingMode() = default;
 
     virtual void exit() const = 0;

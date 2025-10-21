@@ -1,22 +1,30 @@
 #include "../include/editor.h"
+#include "../include/exceptions/unknown_command.h"
 #include "../include/external/colors.h"
 #include "../include/external/conio.h"
 #include <sys/ioctl.h>
 
 void Editor::run() {
     clear_screen();
-    String input("");
 
     while (true) {
         render();
 
-        char c = getch();
-        input += c;
+        while (true) {
+            char c = getch();
+            command_input += c;
+            print_toolbar();
 
-        operating_mode->handle_input(input);
+            try {
+                operating_mode->handle_input(command_input);
+            } catch (const UnknownCommand &err) {
+                continue;
+            }
 
-        // TODO: проверять найдена ли команда
-        input = "";
+            break;
+        }
+
+        command_input = "";
     }
 }
 
@@ -34,6 +42,7 @@ void Editor::print_toolbar() {
     struct winsize w;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
     std::cout << "\033[" << w.ws_row << ";1H";
+    std::cout << CLEAR_LINE;
 
     if (NormalMode *mode = dynamic_cast<NormalMode *>(operating_mode)) {
         std::cout << COLOR_BG_BRIGHT_BLUE << COLOR_BLACK << " NORMAL " << COLOR_RESET;
@@ -47,6 +56,8 @@ void Editor::print_toolbar() {
     if (CommandMode *mode = dynamic_cast<CommandMode *>(operating_mode)) {
         std::cout << COLOR_BG_BRIGHT_CYAN << COLOR_BLACK << " COMMAND " << COLOR_RESET;
     }
+
+    std::cout << "\tCommand prompt: " << command_input;
 
     // TODO:  выводить номер строки и тп
 }

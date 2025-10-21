@@ -33,6 +33,10 @@ char *String::get_c_style() const {
     return str;
 }
 
+int String::get_length() const {
+    return length;
+}
+
 String String::operator+(const String &other) {
     String new_string;
 
