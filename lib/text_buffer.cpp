@@ -1,7 +1,6 @@
 #include "../include/text_buffer.h"
 #include "../include/external/colors.h"
 #include <cstring>
-#include <iomanip>
 #include <iostream>
 
 int TextBuffer::get_length() const { return length; }
