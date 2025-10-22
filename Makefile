@@ -6,6 +6,7 @@ notes:
 	grep -r -n --color=always -E "TODO|FIXME" --exclude-dir=".git"
 
 build:
+	@echo "building..."
 	@g++ -o ./build/main main.cpp \
 		lib/command_mode.cpp \
 		lib/editor.cpp \
@@ -16,9 +17,9 @@ build:
 		lib/visual_mode.cpp \
 
 run:
-	# ./build/main ./test-data/$(FILE)
-	./build/main ./lib/string.cpp
+	@echo "runnig..."
+	@./build/main ./test-data/$(FILE)
 
 build-run:
-	$(MAKE) build
-	$(MAKE) run
+	@$(MAKE) build
+	@$(MAKE) run

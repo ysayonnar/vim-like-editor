@@ -6,6 +6,8 @@
 #include <sys/ioctl.h>
 
 void Editor::run() {
+    // TODO: проверять минимальную ширину и длину экрана и кидать экспешн
+
     clear_screen();
 
     while (true) {

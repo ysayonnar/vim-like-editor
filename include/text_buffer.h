@@ -6,10 +6,11 @@
 
 class TextBuffer {
   private:
-    int length = 0;
     Slice<char *> data;
     int current_pos_x = 0;
     int current_pos_y = 0;
+
+    int prev_pos_x = 0;
 
     int top_screen_offset = 0;
     int right_screen_offset = 0;
@@ -20,7 +21,6 @@ class TextBuffer {
     };
     ~TextBuffer() = default;
 
-    int get_length() const;
     int get_current_pos_x() const;
     int get_current_pos_y() const;
 
