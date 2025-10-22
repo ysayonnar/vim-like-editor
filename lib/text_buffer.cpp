@@ -6,6 +6,8 @@
 #include <iostream>
 #include <math.h>
 #include <string>
+#include <sys/ioctl.h>
+#include <unistd.h>
 
 int TextBuffer::get_length() const { return length; }
 int TextBuffer::get_current_pos_x() const { return current_pos_x; }
@@ -19,6 +21,13 @@ void TextBuffer::next_symbol() {
     if (std::strlen(data[current_pos_y]) != 1) {
         current_pos_x++;
     }
+
+    struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+
+    if (current_pos_x >= right_screen_offset + w.ws_col - 9) {
+        right_screen_offset++;
+    }
 }
 
 void TextBuffer::prev_symbol() {
@@ -27,6 +36,10 @@ void TextBuffer::prev_symbol() {
     }
 
     current_pos_x--;
+
+    if (current_pos_x < right_screen_offset) {
+        right_screen_offset--;
+    }
 }
 
 void TextBuffer::next_line() {
@@ -37,6 +50,13 @@ void TextBuffer::next_line() {
     current_pos_y++;
     if (current_pos_x >= std::strlen(data[current_pos_y])) {
         current_pos_x = std::strlen(data[current_pos_y]) - 1;
+    }
+
+    struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+
+    if (current_pos_y >= top_screen_offset + w.ws_row - 3) {
+        top_screen_offset++;
     }
 }
 
@@ -49,10 +69,23 @@ void TextBuffer::prev_line() {
     if (current_pos_x >= std::strlen(data[current_pos_y])) {
         current_pos_x = std::strlen(data[current_pos_y]) - 1;
     }
+
+    if (current_pos_y < top_screen_offset) {
+        top_screen_offset--;
+    }
 }
 
-std::ostream &operator<<(std::ostream &os, const TextBuffer &buf) {
-    for (int i = 0; i < buf.data.get_length(); i++) {
+std::ostream &operator<<(std::ostream &os, TextBuffer &buf) {
+    struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+
+    // TODO: починить багу с переносом на след строку
+
+    for (int i = buf.top_screen_offset; i < buf.top_screen_offset + w.ws_row - 3; i++) {
+        std::cout << CLEAR_LINE;
+        if (i >= buf.length) {
+            continue;
+        }
         if (i == buf.current_pos_y) {
             std::cout << COLOR_BRIGHT_GREEN << STYLE_BOLD << std::left << std::setw(5) << buf.current_pos_y + 1 << "\t" << COLOR_RESET;
         } else {
@@ -60,7 +93,7 @@ std::ostream &operator<<(std::ostream &os, const TextBuffer &buf) {
         }
 
         int len = std::strlen(buf.data[i]);
-        for (int j = 0; j < len; j++) {
+        for (int j = buf.right_screen_offset; j < buf.right_screen_offset + w.ws_col - 9 && j < len; j++) {
             if (i == buf.current_pos_y && j == buf.current_pos_x) {
                 std::cout << COLOR_BG_WHITE << COLOR_BLACK << buf.data[i][j] << COLOR_RESET;
             } else {
@@ -69,8 +102,8 @@ std::ostream &operator<<(std::ostream &os, const TextBuffer &buf) {
         }
         std::cout << std::endl;
     }
+    std::cout << CLEAR_LINE;
 
-    // FIXME: нужно учитывать длину экрана
     return os;
 }
 

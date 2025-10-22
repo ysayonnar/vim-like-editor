@@ -11,6 +11,9 @@ class TextBuffer {
     int current_pos_x = 0;
     int current_pos_y = 0;
 
+    int top_screen_offset = 0;
+    int right_screen_offset = 0;
+
   public:
     TextBuffer() {
         data = Slice<char *>();
@@ -30,7 +33,7 @@ class TextBuffer {
     void next_line();
     void prev_line();
 
-    friend std::ostream &operator<<(std::ostream &os, const TextBuffer &buf);
+    friend std::ostream &operator<<(std::ostream &os, TextBuffer &buf);
     friend std::istream &operator>>(std::istream &is, TextBuffer &buf);
 };
 

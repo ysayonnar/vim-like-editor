@@ -16,7 +16,8 @@ build:
 		lib/visual_mode.cpp \
 
 run:
-	./build/main ./test-data/$(FILE)
+	# ./build/main ./test-data/$(FILE)
+	./build/main ./lib/string.cpp
 
 build-run:
 	$(MAKE) build
