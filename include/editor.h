@@ -10,6 +10,7 @@
 #include "text_buffer.h"
 #include <fstream>
 #include <iostream>
+#include <termios.h>
 
 class Editor {
   public:
@@ -18,6 +19,7 @@ class Editor {
     std::ifstream file;
     TextBuffer buf;
     String command_input = "";
+    struct termios original_termios;
 
     Editor(String filename) : filename(filename) {
         file.open(filename.get_c_style());

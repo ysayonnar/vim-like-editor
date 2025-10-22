@@ -74,7 +74,7 @@ void TextBuffer::next_line() {
     struct winsize w;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 
-    if (current_pos_y >= top_screen_offset + w.ws_row - 3) {
+    if (current_pos_y >= top_screen_offset + w.ws_row - 2) {
         top_screen_offset++;
     }
 
@@ -121,7 +121,7 @@ std::ostream &operator<<(std::ostream &os, TextBuffer &buf) {
     struct winsize w;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 
-    for (int i = buf.top_screen_offset; i < buf.top_screen_offset + w.ws_row - 3; i++) {
+    for (int i = buf.top_screen_offset; i < buf.top_screen_offset + w.ws_row - 2; i++) {
         std::cout << CLEAR_LINE;
         if (i >= buf.data.get_length()) {
             continue;

@@ -1,8 +1,7 @@
 #include "include/editor.h"
 #include "include/string.h"
-#include "include/text_buffer.h"
-#include <fstream>
 #include <iostream>
+#include <stdexcept>
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -11,6 +10,10 @@ int main(int argc, char *argv[]) {
     }
 
     Editor editor(argv[1]);
-    editor.run();
+    try {
+        editor.run();
+    } catch (const std::out_of_range &err) {
+        std::cout << err.what() << std::endl;
+    }
     return 0;
 }
