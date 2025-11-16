@@ -1,0 +1,119 @@
+@startuml
+skinparam linetype ortho
+class TextBuffer {
+  - data: Slice<char *>
+  - current_pos_x: int
+  - current_pos_y: int
+  - prev_pos_x: int
+  - top_screen_offset: int
+  - right_screen_offset: int
+  + TextBuffer()
+  + ~TextBuffer()
+  + get_current_pos_x(): int
+  + get_current_pos_y(): int
+  + next_symbol(): void
+  + prev_symbol(): void
+  + next_word(): void
+  + prev_word(): void
+  + next_line(): void
+  + prev_line(): void
+  + friend operator<<(std::ostream &, TextBuffer &)
+  + friend operator>>(std::istream &, TextBuffer &)
+}
+
+class ClipboardBuffer {
+  + ClipboardBuffer()
+  + ~ClipboardBuffer()
+  + clear(): void
+  + copy_from(const TextBuffer &, int, int): void
+  + paste_into(TextBuffer &, int): void
+}
+
+class RegisterBuffer {
+  - registers: std::map<char, Slice<char *>>
+  + RegisterBuffer()
+  + ~RegisterBuffer()
+  + save_to_register(char): void
+  + paste_from_register(char, TextBuffer &, int): void
+  + clear_registers(): void
+}
+
+class OperatingMode {
+  # editor: Editor &
+  # is_input_printable: bool
+  + OperatingMode(Editor &, bool)
+  + virtual ~OperatingMode()
+  + virtual exit(): void
+  + virtual handle_input(String): void
+}
+
+class NormalMode {
+  - name: String
+  + NormalMode(Editor &)
+  + ~NormalMode()
+  + exit(): void
+  + handle_input(String): void
+}
+
+class InsertMode {
+- is_replace_mode: bool
+  - name: String
+  + InsertMode(Editor &)
+  + ~InsertMode()
+  + exit(): void
+  + handle_input(String): void
+}
+
+class VisualMode {
+- clipboard_register: RegisterBuffer
+  - name: String
+  + VisualMode(Editor &)
+  + ~VisualMode()
+  + exit(): void
+  + handle_input(String): void
+}
+
+class CommandMode {
+  - name: String
+- is_terminal_command: bool
+  + CommandMode(Editor &)
+  + ~CommandMode()
+  + exit(): void
+  + handle_input(String): void
+}
+
+class Command {
+  - editor: Editor &
+  - key_bind_pattern: String
+  - is_cancelable: bool
+  + Command(Editor &, String, bool)
+  + ~Command()
+  + virtual execute(String): void
+  + virtual undo(): void
+  + virtual get_name(): String
+}
+
+class Editor {
+  + operating_mode: OperatingMode *
+  + filename: String
+  + file: std::ifstream
+  + buf: TextBuffer
+  + command_input: String
+  + original_termios: termios
+  + Editor(String)
+  + ~Editor()
+  + run(): void
+  + render(): void
+  + clear_screen(): void
+  + print_toolbar(): void
+}
+
+' Наследование
+ClipboardBuffer --|> TextBuffer
+RegisterBuffer --|> ClipboardBuffer
+
+NormalMode --|> OperatingMode
+InsertMode --|> OperatingMode
+VisualMode --|> OperatingMode
+CommandMode --|> OperatingMode
+@enduml

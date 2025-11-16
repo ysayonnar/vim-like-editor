@@ -1,5 +1,7 @@
 #include "../include/text_buffer.h"
+#include "../include/containers/slice.h"
 #include "../include/external/colors.h"
+#include "../include/unicode_symbol.h"
 #include <cstdlib>
 #include <cstring>
 #include <iomanip>
@@ -13,7 +15,7 @@ int TextBuffer::get_current_pos_x() const { return current_pos_x; }
 int TextBuffer::get_current_pos_y() const { return current_pos_y; }
 
 void TextBuffer::next_symbol() {
-    int line_length = std::strlen(data[current_pos_y]);
+    int line_length = data[current_pos_y].get_length();
 
     if (line_length == 0) {
         current_pos_x = 0;
@@ -59,7 +61,7 @@ void TextBuffer::next_line() {
 
     current_pos_y++;
 
-    int line_length = std::strlen(data[current_pos_y]);
+    int line_length = data[current_pos_y].get_length();
     if (line_length == 0) {
         current_pos_x = 0;
     } else {
@@ -92,7 +94,7 @@ void TextBuffer::prev_line() {
 
     current_pos_y--;
 
-    int line_length = std::strlen(data[current_pos_y]);
+    int line_length = data[current_pos_y].get_length();
     if (line_length == 0) {
         current_pos_x = 0;
     } else {
@@ -118,6 +120,7 @@ void TextBuffer::prev_line() {
 }
 
 std::ostream &operator<<(std::ostream &os, TextBuffer &buf) {
+    // TODO: поддержку utf-8
     struct winsize w;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 
@@ -132,7 +135,7 @@ std::ostream &operator<<(std::ostream &os, TextBuffer &buf) {
             std::cout << COLOR_MAGENTA << std::right << std::setw(5) << std::abs(buf.current_pos_y - i) << "\t" << COLOR_RESET;
         }
 
-        int len = std::strlen(buf.data[i]);
+        int len = buf.data[i].get_length();
         for (int j = buf.right_screen_offset; j < buf.right_screen_offset + w.ws_col - 9 && j < len; j++) {
             if (i == buf.current_pos_y && j == buf.current_pos_x) {
                 std::cout << COLOR_BG_WHITE << COLOR_BLACK << buf.data[i][j] << COLOR_RESET;
@@ -148,9 +151,6 @@ std::ostream &operator<<(std::ostream &os, TextBuffer &buf) {
 }
 
 std::istream &operator>>(std::istream &is, TextBuffer &buf) {
-    for (Slice<char *>::Iterator it = buf.data.begin(); it != buf.data.end(); ++it) {
-        delete[] *it;
-    }
     buf.data.clear();
 
     buf.current_pos_x = 0;
@@ -161,9 +161,26 @@ std::istream &operator>>(std::istream &is, TextBuffer &buf) {
 
     std::string line;
     while (std::getline(is, line)) {
-        char *cstr = new char[line.size() + 1];
-        std::memcpy(cstr, line.c_str(), line.size() + 1);
-        buf.data.push(cstr);
+        Slice<UnicodeSymbol> unicode_line;
+        for (int i = 0; i < static_cast<int>(line.length());) {
+            unsigned char c = static_cast<unsigned char>(line[i]);
+            int symbol_length = 1;
+
+            if ((c & 0x80) == 0) {
+                symbol_length = 1;
+            } else if ((c & 0xE0) == 0xC0) {
+                symbol_length = 2;
+            } else if ((c & 0xF0) == 0xE0) {
+                symbol_length = 3;
+            } else if ((c & 0xF8) == 0xF0) {
+                symbol_length = 4;
+            }
+
+            UnicodeSymbol symbol(line.substr(i, symbol_length));
+            unicode_line.push(symbol);
+            i += symbol_length;
+        }
+        buf.data.push(unicode_line);
     }
 
     return is;

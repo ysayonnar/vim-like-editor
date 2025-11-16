@@ -1,8 +1,8 @@
 #ifndef COMMAND_H
 #define COMMAND_H
 
+#include "../editor.h"
 #include "../string.h"
-#include "editor.h"
 
 class Command {
   private:

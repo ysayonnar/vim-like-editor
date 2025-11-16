@@ -15,6 +15,8 @@ void Editor::run() {
         throw std::out_of_range("terminal size is too small");
     }
 
+    clear_screen();
+
     bool isExit = false;
     while (!isExit) {
         render();
@@ -37,11 +39,13 @@ void Editor::run() {
 
         command_input = "";
     }
+
+    clear_screen();
 }
 
 void Editor::render() {
-    clear_screen();
-    std::cout << buf << std::endl;
+    std::cout << CURSOR_HOME;
+    std::cout << "\r" << buf << std::endl;
     print_toolbar();
 }
 

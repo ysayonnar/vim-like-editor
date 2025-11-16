@@ -24,6 +24,7 @@ class Editor {
     Editor(String filename) : filename(filename) {
         file.open(filename.get_c_style());
         if (!file.is_open()) {
+            // TODO: перенести логину в другое место, чтобы нормально обрабатывать ошибку
             std::cerr << "error while reading file " << filename << std::endl;
             return;
         }

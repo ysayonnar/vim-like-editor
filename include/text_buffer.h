@@ -2,11 +2,12 @@
 #define TEXT_BUFFER_H
 
 #include "containers/slice.h"
+#include "unicode_symbol.h"
 #include <iostream>
 
 class TextBuffer {
-  private:
-    Slice<char *> data;
+  protected:
+    Slice<Slice<UnicodeSymbol>> data;
     int current_pos_x = 0;
     int current_pos_y = 0;
 
@@ -17,7 +18,7 @@ class TextBuffer {
 
   public:
     TextBuffer() {
-        data = Slice<char *>();
+        data = Slice<Slice<UnicodeSymbol>>();
     };
     ~TextBuffer() = default;
 
