@@ -24,6 +24,18 @@ void NormalMode::handle_input(String str) const {
         editor.buf.next_line();
     } else if (str == "k") {
         editor.buf.prev_line();
+    } else if (str == "w") {
+        editor.buf.next_word();
+    } else if (str == "b") {
+        editor.buf.prev_word();
+    } else if (str == "G") {
+        editor.buf.move_to_end();
+    } else if (str == "gg") {
+        editor.buf.move_to_begin();
+    } else if (str == "0") {
+        editor.buf.start_line();
+    } else if (str == "$") {
+        editor.buf.end_line();
     } else {
         throw UnknownCommand("bad pattern");
     }

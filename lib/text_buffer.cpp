@@ -119,8 +119,103 @@ void TextBuffer::prev_line() {
     }
 }
 
+void TextBuffer::next_word() {
+    int len = data[current_pos_y].get_length();
+
+    while (current_pos_x < len && !data[current_pos_y][current_pos_x].is_space()) {
+        current_pos_x++;
+    }
+
+    while (current_pos_x < len && data[current_pos_y][current_pos_x].is_space()) {
+        current_pos_x++;
+    }
+
+    while (current_pos_x >= len && current_pos_y < data.get_length() - 1) {
+        current_pos_y++;
+        current_pos_x = 0;
+        len = data[current_pos_y].get_length();
+
+        while (current_pos_x < len && data[current_pos_y][current_pos_x].is_space()) {
+            current_pos_x++;
+        }
+    }
+
+    prev_pos_x = current_pos_x;
+
+    struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+    if (current_pos_x >= right_screen_offset + w.ws_col - 9) {
+        right_screen_offset = current_pos_x - (w.ws_col - 9) + 1;
+    }
+}
+
+void TextBuffer::prev_word() {
+    while (current_pos_x > 0 && data[current_pos_y][current_pos_x - 1].is_space()) {
+        current_pos_x--;
+    }
+
+    while (current_pos_x > 0 && !data[current_pos_y][current_pos_x - 1].is_space()) {
+        current_pos_x--;
+    }
+
+    while (current_pos_x == 0 && current_pos_y > 0) {
+        current_pos_y--;
+        current_pos_x = data[current_pos_y].get_length();
+
+        while (current_pos_x > 0 && data[current_pos_y][current_pos_x - 1].is_space()) {
+            current_pos_x--;
+        }
+    }
+
+    prev_pos_x = current_pos_x;
+
+    struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+    if (current_pos_x < right_screen_offset) {
+        right_screen_offset = current_pos_x;
+    } else if (current_pos_x >= right_screen_offset + w.ws_col - 9) {
+        right_screen_offset = current_pos_x - (w.ws_col - 9) + 1;
+    }
+}
+
+void TextBuffer::move_to_end() {
+    prev_pos_x = 0;
+    current_pos_x = 0;
+    current_pos_y = data.get_length() - 1;
+
+    struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+    if (current_pos_y > w.ws_row - 3) {
+        top_screen_offset = current_pos_y - w.ws_row + 3;
+    }
+    right_screen_offset = 0;
+}
+
+void TextBuffer::move_to_begin() {
+    prev_pos_x = 0;
+    current_pos_x = 0;
+    current_pos_y = 0;
+    right_screen_offset = 0;
+    top_screen_offset = 0;
+}
+
+void TextBuffer::end_line() {
+    current_pos_x = data[current_pos_y].get_length() - 1;
+
+    struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+    if (current_pos_x > w.ws_col - 9) {
+        right_screen_offset = current_pos_x - w.ws_col + 10;
+    }
+}
+
+void TextBuffer::start_line() {
+    prev_pos_x = 0;
+    current_pos_x = 0;
+    right_screen_offset = 0;
+}
+
 std::ostream &operator<<(std::ostream &os, TextBuffer &buf) {
-    // TODO: поддержку utf-8
     struct winsize w;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 

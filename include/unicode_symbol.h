@@ -5,19 +5,19 @@
 #include <string>
 
 class UnicodeSymbol {
-  private:
+  public:
     std::string symbol;
     int length;
 
-  public:
     UnicodeSymbol() = default;
     UnicodeSymbol(const std::string &symbol) : symbol(symbol), length(static_cast<int>(symbol.length())) {}
     ~UnicodeSymbol() = default;
 
+    bool is_space() {
+        return std::strcmp(symbol.c_str(), " ") == 0;
+    }
+
     friend std::ostream &operator<<(std::ostream &os, const UnicodeSymbol &s) {
-        // for (int i = 0; i < s.length; i++) {
-        //     os << s.symbol[i];
-        // }
         os << s.symbol;
         return os;
     }

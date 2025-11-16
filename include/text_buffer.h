@@ -34,6 +34,12 @@ class TextBuffer {
     void next_line();
     void prev_line();
 
+    void move_to_end();
+    void move_to_begin();
+
+    void end_line();
+    void start_line();
+
     friend std::ostream &operator<<(std::ostream &os, TextBuffer &buf);
     friend std::istream &operator>>(std::istream &is, TextBuffer &buf);
 };
