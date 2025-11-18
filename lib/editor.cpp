@@ -30,8 +30,6 @@ void Editor::run() {
                 operating_mode->handle_input(command_input);
             } catch (const UnknownCommand &err) {
                 continue;
-            } catch (const ExitCommand &err) {
-                isExit = true;
             }
 
             break;

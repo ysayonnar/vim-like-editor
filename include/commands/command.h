@@ -1,22 +1,23 @@
 #ifndef COMMAND_H
 #define COMMAND_H
 
-#include "../editor.h"
 #include "../string.h"
 
+class Editor;
+
 class Command {
-  private:
+  protected:
     Editor &editor;
+
+  public:
     String key_bind_pattern;
     bool is_cancelable;
 
-  public:
     Command(Editor &editor, String key_bind_pattern, bool is_cancelable) : editor(editor), key_bind_pattern(key_bind_pattern), is_cancelable(is_cancelable) {};
-    ~Command() = default;
+    virtual ~Command() = default;
 
     virtual void execute(String combination) const = 0;
     virtual void undo() const = 0;
-    virtual String get_name() const = 0;
 };
 
 #endif
