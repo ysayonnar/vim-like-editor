@@ -2,6 +2,7 @@
 #define NORMAL_MODE_H
 
 #include "../commands/basic_movement.h"
+#include "../commands/change_mode.h"
 #include "../commands/command.h"
 #include "../string.h"
 #include "operating_mode.h"
@@ -24,6 +25,8 @@ class NormalMode : public OperatingMode {
         commands.push_back(std::make_unique<MoveBeginBuf>(editor, "gg", false));
         commands.push_back(std::make_unique<MoveEndLine>(editor, "$", false));
         commands.push_back(std::make_unique<MoveBeginLine>(editor, "-", false));
+        commands.push_back(std::make_unique<ChangeToInsertMode>(editor, "a", false));
+        commands.push_back(std::make_unique<ChangeToVisualMode>(editor, "v", false));
     };
     ~NormalMode() = default;
     void exit() const override;

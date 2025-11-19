@@ -16,6 +16,7 @@ build:
 		lib/text_buffer.cpp \
 		lib/visual_mode.cpp \
 		lib/basic_movement.cpp \
+		lib/change_mode.cpp \
 
 run:
 	@echo "runnig..."

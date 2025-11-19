@@ -4,11 +4,17 @@
 #include <iostream>
 
 void VisualMode::exit() const {
-    // TODO: placeholder implementation
-    std::cout << "Exiting NORMAL mode" << std::endl;
+    editor.operating_mode = new NormalMode(editor);
 }
 
 void VisualMode::handle_input(String str) const {
-    // TODO: placeholder implementation
-    std::cout << "Exiting NORMAL mode" << std::endl;
+    char last_symbol = str[str.get_length() - 1];
+    if (last_symbol == 27) {
+        editor.command_input = "";
+        exit();
+        return;
+    }
+
+    // TODO: implement commands
+    return;
 }
