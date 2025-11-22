@@ -20,9 +20,11 @@ void InsertMode::handle_input(String str) const {
         // Split current line at cursor: everything after cursor becomes a new line
         int y = editor.buf.get_current_pos_y();
         int x = editor.buf.get_current_pos_x();
-
         Slice<UnicodeSymbol> &cur_line = editor.buf.data[y];
         Slice<UnicodeSymbol> new_line;
+
+        // save original line for undo
+        Slice<UnicodeSymbol> original = cur_line;
 
         int cur_len = cur_line.get_length();
         // move symbols from cursor position to new_line
@@ -47,6 +49,20 @@ void InsertMode::handle_input(String str) const {
         editor.buf.current_pos_x = 0;
         editor.buf.prev_pos_x = 0;
         editor.buf.next_line();
+
+        // push undo: restore original line and remove inserted line
+        {
+            Editor *ed = &editor;
+            ed->push_undo([ed, y, original]() mutable {
+                ed->buf.data[y] = original;
+                // remove line y+1 if exists
+                if (y + 1 < ed->buf.data.get_length()) {
+                    ed->buf.data.pop_at(y + 1);
+                }
+                ed->buf.current_pos_y = y;
+                ed->buf.current_pos_x = original.get_length();
+            });
+        }
     } else if (last_symbol == 8 || last_symbol == 127) {
         if (editor.buf.get_current_pos_y() == 0 && editor.buf.get_current_pos_x() == 0) {
             return;
@@ -56,17 +72,42 @@ void InsertMode::handle_input(String str) const {
             // merge with previous line
             int cur_y = editor.buf.get_current_pos_y();
             int prev_y = cur_y - 1;
-            int old_length = editor.buf.data[prev_y].get_length();
-            int cur_line_length = editor.buf.data[cur_y].get_length();
+            // save originals for undo
+            Slice<UnicodeSymbol> prev_orig = editor.buf.data[prev_y];
+            Slice<UnicodeSymbol> cur_orig = editor.buf.data[cur_y];
+            int old_length = prev_orig.get_length();
+            int cur_line_length = cur_orig.get_length();
             for (int i = 0; i < cur_line_length; ++i) {
-                editor.buf.data[prev_y].push(editor.buf.data[cur_y][i]);
+                editor.buf.data[prev_y].push(cur_orig[i]);
             }
             editor.buf.data.pop_at(cur_y);
             editor.buf.prev_line();
             editor.buf.current_pos_x = old_length;
+
+            // push undo: restore prev and cur lines
+            {
+                Editor *ed = &editor;
+                ed->push_undo([ed, prev_y, prev_orig, cur_orig]() mutable {
+                    ed->buf.data[prev_y] = prev_orig;
+                    ed->buf.data.push_after(cur_orig, prev_y);
+                });
+            }
         } else {
-            editor.buf.data[editor.buf.get_current_pos_y()].pop_at(editor.buf.get_current_pos_x() - 1);
+            int y = editor.buf.get_current_pos_y();
+            int pos = editor.buf.get_current_pos_x() - 1;
+            UnicodeSymbol deleted = editor.buf.data[y][pos];
+            editor.buf.data[y].pop_at(pos);
             editor.buf.prev_symbol();
+
+            // push undo: reinsert deleted symbol
+            {
+                Editor *ed = &editor;
+                ed->push_undo([ed, y, pos, deleted]() mutable {
+                    ed->buf.data[y].insert_at(pos, deleted);
+                    ed->buf.current_pos_y = y;
+                    ed->buf.current_pos_x = pos + 1;
+                });
+            }
         }
     } else {
         // Insert UnicodeSymbol at cursor position (allow insert before first and after last)
@@ -78,8 +119,19 @@ void InsertMode::handle_input(String str) const {
         int idx = editor.buf.get_current_pos_x();
 
         // insert at idx (0..length). insert_at handles append when idx == length
+        int y = editor.buf.get_current_pos_y();
         line.insert_at(idx, symbol);
         editor.buf.next_symbol();
+
+        // push undo: remove inserted symbol
+        {
+            Editor *ed = &editor;
+            ed->push_undo([ed, y, idx]() mutable {
+                ed->buf.data[y].pop_at(idx);
+                ed->buf.current_pos_y = y;
+                ed->buf.current_pos_x = idx;
+            });
+        }
     }
 
     throw UnknownCommand("ok");

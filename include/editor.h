@@ -9,6 +9,7 @@
 #include "string.h"
 #include "text_buffer.h"
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <termios.h>
 
@@ -19,6 +20,8 @@ class Editor {
     std::ifstream file;
     TextBuffer buf;
     ClipboardBuffer clipboard;
+    // undo stack: functions that perform the inverse of an action
+    std::vector<std::function<void()>> undo_stack;
     String command_input = "";
     struct termios original_termios;
 
@@ -46,6 +49,8 @@ class Editor {
     void render();
     void clear_screen();
     void print_toolbar();
+    void push_undo(std::function<void()> f);
+    void undo_last();
 };
 
 #endif

@@ -66,4 +66,13 @@ class YankLine : public Command {
     void undo() const override {};
 };
 
+class UndoCmd : public Command {
+  public:
+    UndoCmd(Editor &editor, String key_bind_pattern, bool is_cancelable) : Command(editor, key_bind_pattern, is_cancelable) {};
+    ~UndoCmd() = default;
+
+    void execute(String combination) const override;
+    void undo() const override {};
+};
+
 #endif

@@ -3,6 +3,7 @@
 #include "../include/exceptions/unknown_command.h"
 #include "../include/external/colors.h"
 #include "../include/external/conio.h"
+#include <functional>
 #include <iomanip>
 #include <stdexcept>
 #include <sys/ioctl.h>
@@ -57,6 +58,18 @@ void Editor::run() {
     }
 
     clear_screen();
+}
+
+void Editor::push_undo(std::function<void()> f) {
+    undo_stack.push_back(f);
+}
+
+void Editor::undo_last() {
+    if (undo_stack.empty())
+        return;
+    auto f = undo_stack.back();
+    undo_stack.pop_back();
+    f();
 }
 
 void Editor::render() {

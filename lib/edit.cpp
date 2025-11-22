@@ -26,11 +26,24 @@ void CutLine::execute(String combination) const {
         end_line = editor.buf.data.get_length() - 1;
     }
 
-    // copy lines to clipboard
+    // copy lines to clipboard and save for undo
     editor.clipboard.clear();
     editor.clipboard.set_linewise(true);
+    std::vector<Slice<UnicodeSymbol>> saved_lines;
     for (int i = start_line; i <= end_line; ++i) {
         editor.clipboard.data.push(editor.buf.data[i]);
+        saved_lines.push_back(editor.buf.data[i]);
+    }
+
+    // push undo: reinsert saved_lines at start_line
+    {
+        Editor *ed = &editor;
+        auto saved = saved_lines;
+        ed->push_undo([ed, start_line, saved]() mutable {
+            for (int i = 0; i < (int)saved.size(); ++i) {
+                ed->buf.data.push_after(saved[i], start_line + i - 1);
+            }
+        });
     }
 
     // remove lines
@@ -67,7 +80,33 @@ void Paste::execute(String combination) const {
     // Paste at current cursor position
     int line = editor.buf.get_current_pos_y();
     int col = editor.buf.get_current_pos_x();
-    editor.clipboard.paste_into(editor.buf, line, col);
+    // perform paste
+    if (editor.clipboard.is_linewise()) {
+        int inserted = editor.clipboard.data.get_length();
+        editor.clipboard.paste_into(editor.buf, line, col);
+        // undo: remove inserted lines
+        {
+            Editor *ed = &editor;
+            ed->push_undo([ed, line, inserted]() mutable {
+                for (int i = 0; i < inserted; ++i) {
+                    ed->buf.data.pop_at(line + 1);
+                }
+            });
+        }
+    } else {
+        // char-wise
+        int chars = editor.clipboard.data.get_length() > 0 ? editor.clipboard.data[0].get_length() : 0;
+        editor.clipboard.paste_into(editor.buf, line, col);
+        {
+            Editor *ed = &editor;
+            ed->push_undo([ed, line, col, chars]() mutable {
+                // remove inserted chars
+                for (int i = 0; i < chars; ++i) {
+                    ed->buf.data[line].pop_at(col);
+                }
+            });
+        }
+    }
 }
 
 void YankLine::execute(String combination) const {
@@ -87,4 +126,8 @@ void YankLine::execute(String combination) const {
     for (int i = start_line; i <= end_line; ++i) {
         editor.clipboard.data.push(editor.buf.data[i]);
     }
+}
+
+void UndoCmd::execute(String combination) const {
+    editor.undo_last();
 }
