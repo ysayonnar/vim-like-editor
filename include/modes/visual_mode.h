@@ -14,7 +14,7 @@ class VisualMode : public OperatingMode {
     std::vector<std::unique_ptr<Command>> commands;
 
   public:
-    VisualMode(Editor &editor) : OperatingMode(editor, true) {};
+    VisualMode(Editor &editor);
     ~VisualMode() = default;
     void exit() const override;
     void handle_input(String str) const override;

@@ -18,6 +18,11 @@ class TextBuffer {
 
     Slice<Slice<UnicodeSymbol>> data;
 
+    // Visual selection state (used by VisualMode)
+    bool selection_active = false;
+    int sel_anchor_x = 0;
+    int sel_anchor_y = 0;
+
     TextBuffer() {
         data = Slice<Slice<UnicodeSymbol>>();
     };

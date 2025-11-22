@@ -296,8 +296,54 @@ std::ostream &operator<<(std::ostream &os, TextBuffer &buf) {
         int end = std::min(buf.right_screen_offset + visible, len);
 
         int printed = 0;
+
+        auto is_selected_pos = [&](int line, int col) {
+            if (!buf.selection_active)
+                return false;
+
+            int ay = buf.sel_anchor_y;
+            int ax = buf.sel_anchor_x;
+            int by = buf.current_pos_y;
+            int bx = buf.current_pos_x;
+
+            int sY = ay, sX = ax, eY = by, eX = bx;
+            if (sY > eY || (sY == eY && sX > eX)) {
+                sY = by;
+                sX = bx;
+                eY = ay;
+                eX = ax;
+            }
+
+            if (line < sY || line > eY)
+                return false;
+
+            int line_len = buf.data[line].get_length();
+
+            if (sY == eY) {
+                int end_index = std::min(eX - 1, line_len - 1);
+                if (end_index < 0)
+                    return false;
+                return col >= sX && col <= end_index;
+            }
+
+            if (line == sY) {
+                return col >= sX && col < line_len;
+            }
+            if (line == eY) {
+                int end_index = std::min(eX - 1, line_len - 1);
+                if (end_index < 0)
+                    return false;
+                return col <= end_index;
+            }
+
+            // fully selected middle lines: any existing character
+            return col < line_len;
+        };
+
         for (int j = start; j < end; j++) {
-            if (i == buf.current_pos_y && j == buf.current_pos_x) {
+            if (is_selected_pos(i, j)) {
+                std::cout << STYLE_REVERSE << buf.data[i][j] << COLOR_RESET;
+            } else if (i == buf.current_pos_y && j == buf.current_pos_x) {
                 std::cout << COLOR_BG_WHITE << COLOR_BLACK << buf.data[i][j] << COLOR_RESET;
             } else {
                 std::cout << buf.data[i][j];
