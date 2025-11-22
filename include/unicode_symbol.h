@@ -10,6 +10,10 @@ class UnicodeSymbol {
     int length;
 
     UnicodeSymbol() = default;
+    UnicodeSymbol(char c) {
+        symbol = c;
+        length = 1;
+    }
     UnicodeSymbol(const std::string &symbol) : symbol(symbol), length(static_cast<int>(symbol.length())) {}
     ~UnicodeSymbol() = default;
 

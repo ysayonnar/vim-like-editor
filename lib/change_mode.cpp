@@ -6,6 +6,9 @@ void ChangeToNormalMode::execute(String combination) const {
 }
 
 void ChangeToInsertMode::execute(String combination) const {
+    if (combination == "a") {
+        editor.buf.next_symbol();
+    }
     editor.operating_mode = new InsertMode(editor);
 }
 

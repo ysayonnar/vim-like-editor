@@ -6,8 +6,7 @@
 #include <iostream>
 
 class TextBuffer {
-  protected:
-    Slice<Slice<UnicodeSymbol>> data;
+  public:
     int current_pos_x = 0;
     int current_pos_y = 0;
 
@@ -16,7 +15,8 @@ class TextBuffer {
     int top_screen_offset = 0;
     int right_screen_offset = 0;
 
-  public:
+    Slice<Slice<UnicodeSymbol>> data;
+
     TextBuffer() {
         data = Slice<Slice<UnicodeSymbol>>();
     };

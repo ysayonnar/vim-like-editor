@@ -26,6 +26,9 @@ class NormalMode : public OperatingMode {
         commands.push_back(std::make_unique<MoveEndLine>(editor, "$", false));
         commands.push_back(std::make_unique<MoveBeginLine>(editor, "-", false));
         commands.push_back(std::make_unique<ChangeToInsertMode>(editor, "a", false));
+        commands.push_back(std::make_unique<ChangeToInsertMode>(editor, "A", false));
+        commands.push_back(std::make_unique<ChangeToInsertMode>(editor, "i", false));
+        commands.push_back(std::make_unique<ChangeToInsertMode>(editor, "I", false));
         commands.push_back(std::make_unique<ChangeToVisualMode>(editor, "v", false));
     };
     ~NormalMode() = default;

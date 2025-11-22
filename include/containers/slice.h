@@ -122,7 +122,7 @@ void Slice<T>::push(const T &value) {
 
 template <typename T>
 void Slice<T>::push_after(const T &value, int index) {
-    if (index < 0 || index >= length) {
+    if (index < -1 || index >= length) {
         throw std::out_of_range("index is out of range");
     }
 
@@ -130,11 +130,18 @@ void Slice<T>::push_after(const T &value, int index) {
         resize(capacity == 0 ? 1 : capacity * 2);
     }
 
-    for (int i = length; i > index + 1; i--) {
-        data[i] = std::move(data[i - 1]);
+    if (index == -1) {
+        for (int i = length; i > 0; i--) {
+            data[i] = std::move(data[i - 1]);
+        }
+        data[0] = value;
+    } else {
+        for (int i = length; i > index + 1; i--) {
+            data[i] = std::move(data[i - 1]);
+        }
+        data[index + 1] = value;
     }
 
-    data[index + 1] = value;
     length++;
 }
 

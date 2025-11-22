@@ -19,11 +19,26 @@ void Editor::run() {
 
     bool isExit = false;
     while (!isExit) {
-        render();
-
         while (true) {
-            char c = getch();
-            command_input += c;
+            render();
+            char first_byte = getch();
+            command_input += first_byte;
+
+            if ((first_byte & 0x80) != 0) {
+                int additional_bytes = 0;
+                if ((first_byte & 0xE0) == 0xC0) {
+                    additional_bytes = 1; // 110xxxxx - 2 байта
+                } else if ((first_byte & 0xF0) == 0xE0) {
+                    additional_bytes = 2; // 1110xxxx - 3 байта
+                } else if ((first_byte & 0xF8) == 0xF0) {
+                    additional_bytes = 3; // 11110xxx - 4 байта
+                }
+
+                for (int i = 0; i < additional_bytes; i++) {
+                    command_input += getch();
+                }
+            }
+
             print_toolbar();
 
             try {
