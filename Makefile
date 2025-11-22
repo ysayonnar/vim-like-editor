@@ -8,7 +8,6 @@ notes:
 build:
 	@echo "building..."
 	@g++ -o ./build/main main.cpp \
-		lib/command_mode.cpp \
 		lib/editor.cpp \
 		lib/insert_mode.cpp \
 		lib/normal_mode.cpp \

@@ -2,6 +2,7 @@
 #define TEXT_BUFFER_H
 
 #include "containers/slice.h"
+#include "string.h"
 #include "unicode_symbol.h"
 #include <iostream>
 
@@ -42,6 +43,11 @@ class TextBuffer {
 
     void cut_current_symbol();
     void cut_current_line();
+
+    void new_line_after();
+    void new_line_before();
+
+    void save(String filename);
 
     friend std::ostream &operator<<(std::ostream &os, TextBuffer &buf);
     friend std::istream &operator>>(std::istream &is, TextBuffer &buf);

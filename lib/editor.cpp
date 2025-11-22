@@ -46,6 +46,8 @@ void Editor::run() {
                 operating_mode->handle_input(command_input);
             } catch (const UnknownCommand &err) {
                 continue;
+            } catch (const ExitCommand &ex) {
+                isExit = true;
             }
 
             break;
@@ -81,9 +83,6 @@ void Editor::print_toolbar() {
     }
     if (InsertMode *mode = dynamic_cast<InsertMode *>(operating_mode)) {
         std::cout << COLOR_BG_BRIGHT_GREEN << COLOR_BLACK << " INSERT " << COLOR_RESET;
-    }
-    if (CommandMode *mode = dynamic_cast<CommandMode *>(operating_mode)) {
-        std::cout << COLOR_BG_BRIGHT_CYAN << COLOR_BLACK << " COMMAND " << COLOR_RESET;
     }
 
     if (command_input.get_length() > 10) {

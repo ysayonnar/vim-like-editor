@@ -4,6 +4,7 @@
 #include "../include/unicode_symbol.h"
 #include <cstdlib>
 #include <cstring>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <math.h>
@@ -203,7 +204,7 @@ void TextBuffer::move_to_begin() {
 
 void TextBuffer::cut_current_symbol() {
     int cur_line_length = data[current_pos_y].get_length();
-    if (cur_line_length == 0) {
+    if (cur_line_length == 0 || current_pos_x == cur_line_length) {
         return;
     }
     data[current_pos_y].pop_at(current_pos_x);
@@ -226,6 +227,14 @@ void TextBuffer::cut_current_line() {
     }
 }
 
+void TextBuffer::new_line_after() {
+    data.push_after(Slice<UnicodeSymbol>(), current_pos_y);
+}
+
+void TextBuffer::new_line_before() {
+    data.push_after(Slice<UnicodeSymbol>(), current_pos_y - 1);
+}
+
 void TextBuffer::end_line() {
     // move cursor to after-end position (one-past-last) for $ command
     int len = data[current_pos_y].get_length();
@@ -243,6 +252,25 @@ void TextBuffer::start_line() {
     prev_pos_x = 0;
     current_pos_x = 0;
     right_screen_offset = 0;
+}
+
+void TextBuffer::save(String filename) {
+    std::ofstream outFile(filename.get_c_style(), std::ios::trunc);
+    if (!outFile.is_open()) {
+        std::cerr << "error while saving file " << filename << std::endl;
+        return;
+    }
+
+    for (int i = 0; i < data.get_length(); i++) {
+        for (int j = 0; j < data[i].get_length(); j++) {
+            outFile << data[i][j];
+        }
+        if (i != data.get_length() - 1) {
+            outFile << '\n';
+        }
+    }
+
+    outFile.close();
 }
 
 std::ostream &operator<<(std::ostream &os, TextBuffer &buf) {

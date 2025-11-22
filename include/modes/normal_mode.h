@@ -34,6 +34,11 @@ class NormalMode : public OperatingMode {
         commands.push_back(std::make_unique<CutSymbol>(editor, "x", false));
         commands.push_back(std::make_unique<CutLine>(editor, "dd", false));
         commands.push_back(std::make_unique<CutLine>(editor, "D", false));
+        commands.push_back(std::make_unique<NewLineAfterAndInsert>(editor, "o", false));
+        commands.push_back(std::make_unique<NewLineBeforeAndInsert>(editor, "O", false));
+        commands.push_back(std::make_unique<SaveQuit>(editor, ":q\n", false));
+        commands.push_back(std::make_unique<SaveQuit>(editor, ":wq\n", false));
+        commands.push_back(std::make_unique<SaveQuit>(editor, ":w\n", false));
     };
     ~NormalMode() = default;
     void exit() const override;

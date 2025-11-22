@@ -32,10 +32,8 @@ void NormalMode::exit() const {
 
 void NormalMode::handle_input(String str) const {
     char last_symbol = str[str.get_length() - 1];
-    if (last_symbol < 32) {
-        editor.command_input = "";
-        return;
-    } else if (std::isdigit(last_symbol)) {
+
+    if (std::isdigit(last_symbol)) {
         throw UnknownCommand("bad pattern");
     }
 
@@ -49,7 +47,9 @@ void NormalMode::handle_input(String str) const {
     }
 
     if (!is_executed) {
-        // editor.command_input = "";
+        if (last_symbol < 32) {
+            editor.command_input = "";
+        }
         throw UnknownCommand("bad command pattern");
     }
 }
