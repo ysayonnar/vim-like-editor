@@ -1,6 +1,7 @@
 #ifndef EDITOR_H
 #define EDITOR_H
 
+#include "clipboard_buffer.h"
 #include "modes/insert_mode.h"
 #include "modes/normal_mode.h"
 #include "modes/operating_mode.h"
@@ -17,6 +18,7 @@ class Editor {
     String filename;
     std::ifstream file;
     TextBuffer buf;
+    ClipboardBuffer clipboard;
     String command_input = "";
     struct termios original_termios;
 

@@ -48,4 +48,22 @@ class SaveQuit : public Command {
     void undo() const override {};
 };
 
+class Paste : public Command {
+  public:
+    Paste(Editor &editor, String key_bind_pattern, bool is_cancelable) : Command(editor, key_bind_pattern, is_cancelable) {};
+    ~Paste() = default;
+
+    void execute(String combination) const override;
+    void undo() const override {};
+};
+
+class YankLine : public Command {
+  public:
+    YankLine(Editor &editor, String key_bind_pattern, bool is_cancelable) : Command(editor, key_bind_pattern, is_cancelable) {};
+    ~YankLine() = default;
+
+    void execute(String combination) const override;
+    void undo() const override {};
+};
+
 #endif

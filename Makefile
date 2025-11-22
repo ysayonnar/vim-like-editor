@@ -11,6 +11,7 @@ build:
 		lib/editor.cpp \
 		lib/insert_mode.cpp \
 		lib/normal_mode.cpp \
+		lib/clipboard_buffer.cpp \
 		lib/string.cpp \
 		lib/text_buffer.cpp \
 		lib/visual_mode.cpp \

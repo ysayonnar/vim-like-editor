@@ -31,9 +31,12 @@ class NormalMode : public OperatingMode {
         commands.push_back(std::make_unique<ChangeToInsertMode>(editor, "i", false));
         commands.push_back(std::make_unique<ChangeToInsertMode>(editor, "I", false));
         commands.push_back(std::make_unique<ChangeToVisualMode>(editor, "v", false));
+        commands.push_back(std::make_unique<ChangeToVisualMode>(editor, "V", false));
         commands.push_back(std::make_unique<CutSymbol>(editor, "x", false));
         commands.push_back(std::make_unique<CutLine>(editor, "dd", false));
         commands.push_back(std::make_unique<CutLine>(editor, "D", false));
+        commands.push_back(std::make_unique<Paste>(editor, "p", false));
+        commands.push_back(std::make_unique<YankLine>(editor, "y", false));
         commands.push_back(std::make_unique<NewLineAfterAndInsert>(editor, "o", false));
         commands.push_back(std::make_unique<NewLineBeforeAndInsert>(editor, "O", false));
         commands.push_back(std::make_unique<SaveQuit>(editor, ":q\n", false));

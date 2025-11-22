@@ -18,5 +18,9 @@ void ChangeToInsertMode::execute(String combination) const {
 }
 
 void ChangeToVisualMode::execute(String combination) const {
-    editor.operating_mode = new VisualMode(editor);
+    if (combination == "V") {
+        editor.operating_mode = new VisualMode(editor, true);
+    } else {
+        editor.operating_mode = new VisualMode(editor, false);
+    }
 }

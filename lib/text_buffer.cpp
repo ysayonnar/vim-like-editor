@@ -342,7 +342,8 @@ std::ostream &operator<<(std::ostream &os, TextBuffer &buf) {
 
         for (int j = start; j < end; j++) {
             if (is_selected_pos(i, j)) {
-                std::cout << STYLE_REVERSE << buf.data[i][j] << COLOR_RESET;
+                // gray background for selection, white text
+                std::cout << COLOR_BG_BRIGHT_BLACK << COLOR_WHITE << buf.data[i][j] << COLOR_RESET;
             } else if (i == buf.current_pos_y && j == buf.current_pos_x) {
                 std::cout << COLOR_BG_WHITE << COLOR_BLACK << buf.data[i][j] << COLOR_RESET;
             } else {

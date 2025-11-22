@@ -12,9 +12,10 @@ class VisualMode : public OperatingMode {
   private:
     String name = "VISUAL";
     std::vector<std::unique_ptr<Command>> commands;
+    bool line_mode = false;
 
   public:
-    VisualMode(Editor &editor);
+    VisualMode(Editor &editor, bool line_mode = false);
     ~VisualMode() = default;
     void exit() const override;
     void handle_input(String str) const override;
