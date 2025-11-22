@@ -40,6 +40,9 @@ class TextBuffer {
     void end_line();
     void start_line();
 
+    void cut_current_symbol();
+    void cut_current_line();
+
     friend std::ostream &operator<<(std::ostream &os, TextBuffer &buf);
     friend std::istream &operator>>(std::istream &is, TextBuffer &buf);
 };

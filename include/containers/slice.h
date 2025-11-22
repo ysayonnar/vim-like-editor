@@ -40,6 +40,7 @@ class Slice {
     bool is_empty() const;
     void push(const T &value);
     void push_after(const T &value, int index);
+    void insert_at(int index, const T &value);
     T pop();
     T pop_at(int index);
 
@@ -142,6 +143,23 @@ void Slice<T>::push_after(const T &value, int index) {
         data[index + 1] = value;
     }
 
+    length++;
+}
+template <typename T>
+void Slice<T>::insert_at(int index, const T &value) {
+    if (index < 0 || index > length) {
+        throw std::out_of_range("index is out of range");
+    }
+
+    if (length == capacity) {
+        resize(capacity == 0 ? 1 : capacity * 2);
+    }
+
+    for (int i = length; i > index; --i) {
+        data[i] = std::move(data[i - 1]);
+    }
+
+    data[index] = value;
     length++;
 }
 

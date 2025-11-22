@@ -23,13 +23,13 @@ void TextBuffer::next_symbol() {
         return;
     }
 
-    if (current_pos_x >= line_length - 1) {
-        current_pos_x = line_length - 1;
-        prev_pos_x = current_pos_x;
-        return;
+    // allow cursor to move one position past the last symbol (i.e., at index == line_length)
+    if (current_pos_x < line_length) {
+        current_pos_x++;
+    } else {
+        // already at or past end; clamp to end
+        current_pos_x = line_length;
     }
-
-    current_pos_x++;
     prev_pos_x = current_pos_x;
 
     struct winsize w;
@@ -41,6 +41,7 @@ void TextBuffer::next_symbol() {
 }
 
 void TextBuffer::prev_symbol() {
+
     if (current_pos_x == 0) {
         prev_pos_x = current_pos_x;
         return;
@@ -66,8 +67,9 @@ void TextBuffer::next_line() {
         current_pos_x = 0;
     } else {
         int preferred = prev_pos_x;
-        if (preferred > line_length - 1) {
-            current_pos_x = line_length - 1;
+        // allow preferred to be at most line_length (one-past-end)
+        if (preferred > line_length) {
+            current_pos_x = line_length;
         } else {
             current_pos_x = preferred;
         }
@@ -99,8 +101,8 @@ void TextBuffer::prev_line() {
         current_pos_x = 0;
     } else {
         int preferred = prev_pos_x;
-        if (preferred > line_length - 1) {
-            current_pos_x = line_length - 1;
+        if (preferred > line_length) {
+            current_pos_x = line_length;
         } else {
             current_pos_x = preferred;
         }
@@ -199,13 +201,41 @@ void TextBuffer::move_to_begin() {
     top_screen_offset = 0;
 }
 
+void TextBuffer::cut_current_symbol() {
+    int cur_line_length = data[current_pos_y].get_length();
+    if (cur_line_length == 0) {
+        return;
+    }
+    data[current_pos_y].pop_at(current_pos_x);
+
+    if (current_pos_x == cur_line_length - 1) {
+        prev_symbol();
+    }
+}
+
+void TextBuffer::cut_current_line() {
+    if (data.get_length() == 1) {
+        data[current_pos_y].clear();
+        return;
+    }
+
+    data.pop_at(current_pos_y);
+
+    if (current_pos_y == data.get_length()) {
+        prev_line();
+    }
+}
+
 void TextBuffer::end_line() {
-    current_pos_x = data[current_pos_y].get_length() - 1;
+    // move cursor to after-end position (one-past-last) for $ command
+    int len = data[current_pos_y].get_length();
+    current_pos_x = len; // position after last character
 
     struct winsize w;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
-    if (current_pos_x > w.ws_col - 9) {
-        right_screen_offset = current_pos_x - w.ws_col + 10;
+    int visible = w.ws_col - 9;
+    if (current_pos_x >= visible) {
+        right_screen_offset = current_pos_x - visible + 1;
     }
 }
 
@@ -222,22 +252,40 @@ std::ostream &operator<<(std::ostream &os, TextBuffer &buf) {
     for (int i = buf.top_screen_offset; i < buf.top_screen_offset + w.ws_row - 2; i++) {
         std::cout << CLEAR_LINE;
         if (i >= buf.data.get_length()) {
+            std::cout << COLOR_BLUE << std::right << std::setw(5) << "~" << "\t" << COLOR_RESET;
+            std::cout << std::endl;
             continue;
         }
         if (i == buf.current_pos_y) {
-            std::cout << COLOR_BRIGHT_GREEN << STYLE_BOLD << std::left << std::setw(5) << buf.current_pos_y + 1 << "\t" << COLOR_RESET;
+            std::cout << COLOR_GREEN << STYLE_BOLD << std::left << std::setw(5) << buf.current_pos_y + 1 << "\t" << COLOR_RESET;
         } else {
-            std::cout << COLOR_MAGENTA << std::right << std::setw(5) << std::abs(buf.current_pos_y - i) << "\t" << COLOR_RESET;
+            std::cout << COLOR_CYAN << std::right << std::setw(5) << std::abs(buf.current_pos_y - i) << "\t" << COLOR_RESET;
         }
 
         int len = buf.data[i].get_length();
-        for (int j = buf.right_screen_offset; j < buf.right_screen_offset + w.ws_col - 9 && j < len; j++) {
+        int visible = w.ws_col - 9;
+        int start = buf.right_screen_offset;
+        int end = std::min(buf.right_screen_offset + visible, len);
+
+        int printed = 0;
+        for (int j = start; j < end; j++) {
             if (i == buf.current_pos_y && j == buf.current_pos_x) {
                 std::cout << COLOR_BG_WHITE << COLOR_BLACK << buf.data[i][j] << COLOR_RESET;
             } else {
                 std::cout << buf.data[i][j];
             }
+            printed++;
         }
+
+        // If cursor is in after-end position (one-past-last) and visible on screen, draw a highlighted space as marker
+        if (i == buf.current_pos_y && buf.current_pos_x == len && buf.current_pos_x >= buf.right_screen_offset && buf.current_pos_x < buf.right_screen_offset + visible) {
+            int target_col = buf.current_pos_x - buf.right_screen_offset; // zero-based
+            int pad = target_col - printed;
+            for (int p = 0; p < pad; ++p)
+                std::cout << ' ';
+            std::cout << COLOR_BG_WHITE << COLOR_BLACK << ' ' << COLOR_RESET;
+        }
+
         std::cout << std::endl;
     }
     std::cout << CLEAR_LINE;
@@ -276,6 +324,10 @@ std::istream &operator>>(std::istream &is, TextBuffer &buf) {
             i += symbol_length;
         }
         buf.data.push(unicode_line);
+    }
+
+    if (buf.data.get_length() == 0) {
+        buf.data.push(Slice<UnicodeSymbol>());
     }
 
     return is;

@@ -17,6 +17,7 @@ build:
 		lib/visual_mode.cpp \
 		lib/basic_movement.cpp \
 		lib/change_mode.cpp \
+		lib/edit.cpp \
 
 run:
 	@echo "runnig..."

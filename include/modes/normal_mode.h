@@ -4,6 +4,7 @@
 #include "../commands/basic_movement.h"
 #include "../commands/change_mode.h"
 #include "../commands/command.h"
+#include "../commands/edit.h"
 #include "../string.h"
 #include "operating_mode.h"
 #include <memory>
@@ -30,6 +31,9 @@ class NormalMode : public OperatingMode {
         commands.push_back(std::make_unique<ChangeToInsertMode>(editor, "i", false));
         commands.push_back(std::make_unique<ChangeToInsertMode>(editor, "I", false));
         commands.push_back(std::make_unique<ChangeToVisualMode>(editor, "v", false));
+        commands.push_back(std::make_unique<CutSymbol>(editor, "x", false));
+        commands.push_back(std::make_unique<CutLine>(editor, "dd", false));
+        commands.push_back(std::make_unique<CutLine>(editor, "D", false));
     };
     ~NormalMode() = default;
     void exit() const override;

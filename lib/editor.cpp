@@ -39,8 +39,9 @@ void Editor::run() {
                 }
             }
 
-            print_toolbar();
-
+            if (first_byte != '\n') {
+                print_toolbar();
+            }
             try {
                 operating_mode->handle_input(command_input);
             } catch (const UnknownCommand &err) {

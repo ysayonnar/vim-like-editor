@@ -6,9 +6,14 @@ void ChangeToNormalMode::execute(String combination) const {
 }
 
 void ChangeToInsertMode::execute(String combination) const {
-    if (combination == "a") {
+    if (combination == "A") {
+        editor.buf.end_line();
+    } else if (combination == "I") {
+        editor.buf.start_line();
+    } else if (combination == "a") {
         editor.buf.next_symbol();
     }
+
     editor.operating_mode = new InsertMode(editor);
 }
 

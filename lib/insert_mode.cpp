@@ -16,11 +16,36 @@ void InsertMode::handle_input(String str) const {
         exit();
         return;
     }
-
     if (last_symbol == '\n') {
+        // Split current line at cursor: everything after cursor becomes a new line
+        int y = editor.buf.get_current_pos_y();
+        int x = editor.buf.get_current_pos_x();
+
+        Slice<UnicodeSymbol> &cur_line = editor.buf.data[y];
+        Slice<UnicodeSymbol> new_line;
+
+        int cur_len = cur_line.get_length();
+        // move symbols from cursor position to new_line
+        for (int i = x; i < cur_len; ++i) {
+            new_line.push(cur_line[i]);
+        }
+
+        // remove moved symbols from current line
+        while (cur_line.get_length() > x) {
+            cur_line.pop_at(x);
+        }
+
+        // insert new line after current line
+        int total_lines = editor.buf.data.get_length();
+        if (y >= total_lines - 1) {
+            editor.buf.data.push(new_line);
+        } else {
+            editor.buf.data.push_after(new_line, y);
+        }
+
+        // move cursor to beginning of new line
         editor.buf.current_pos_x = 0;
         editor.buf.prev_pos_x = 0;
-        // TODO: insert line here
         editor.buf.next_line();
     } else if (last_symbol == 8 || last_symbol == 127) {
         if (editor.buf.get_current_pos_y() == 0 && editor.buf.get_current_pos_x() == 0) {
@@ -28,23 +53,32 @@ void InsertMode::handle_input(String str) const {
         }
 
         if (editor.buf.get_current_pos_x() == 0) {
-            int old_length = editor.buf.data[editor.buf.get_current_pos_y() - 1].get_length();
-            int cur_line_length = editor.buf.data[editor.buf.get_current_pos_y()].get_length();
-            if (cur_line_length > 1) {
-                for (int i = 0; i < cur_line_length; i++) {
-                    editor.buf.data[editor.buf.get_current_pos_y() - 1].push(editor.buf.data[editor.buf.get_current_pos_y()][i]);
-                }
+            // merge with previous line
+            int cur_y = editor.buf.get_current_pos_y();
+            int prev_y = cur_y - 1;
+            int old_length = editor.buf.data[prev_y].get_length();
+            int cur_line_length = editor.buf.data[cur_y].get_length();
+            for (int i = 0; i < cur_line_length; ++i) {
+                editor.buf.data[prev_y].push(editor.buf.data[cur_y][i]);
             }
-            editor.buf.data.pop_at(editor.buf.get_current_pos_y());
+            editor.buf.data.pop_at(cur_y);
             editor.buf.prev_line();
-            editor.buf.current_pos_x = old_length;
             editor.buf.current_pos_x = old_length;
         } else {
             editor.buf.data[editor.buf.get_current_pos_y()].pop_at(editor.buf.get_current_pos_x() - 1);
             editor.buf.prev_symbol();
         }
     } else {
-        editor.buf.data[editor.buf.get_current_pos_y()].push_after(UnicodeSymbol(str.get_c_style()), editor.buf.get_current_pos_x() - 1);
+        // Insert UnicodeSymbol at cursor position (allow insert before first and after last)
+        char ch = last_symbol;
+        std::string tmp(1, ch);
+        UnicodeSymbol symbol(tmp);
+
+        auto &line = editor.buf.data[editor.buf.get_current_pos_y()];
+        int idx = editor.buf.get_current_pos_x();
+
+        // insert at idx (0..length). insert_at handles append when idx == length
+        line.insert_at(idx, symbol);
         editor.buf.next_symbol();
     }
 

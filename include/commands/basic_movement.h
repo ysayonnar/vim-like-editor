@@ -92,4 +92,6 @@ class MoveEndLine : public Command {
     void undo() const override {};
 };
 
+int extract_num(String str);
+
 #endif
