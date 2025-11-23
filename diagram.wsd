@@ -1,0 +1,211 @@
+@startuml
+skinparam linetype ortho
+
+
+
+skinparam class {
+    BackgroundColor White
+    BorderColor Black
+    ArrowColor Black
+    AttributeFontSize 12
+    AttributeFontName Arial
+    MethodFontSize 12
+    MethodFontName Arial
+}
+
+skinparam groupInheritance 4
+hide circle
+hide empty members
+
+skinparam {
+    ClassAttributeIconSize 0
+    ClassMethodIconSize 0
+}
+
+
+class Editor {
+  - OperatingMode* operating_mode
+  - String filename
+  - std::ifstream file
+  - TextBuffer buf
+  - ClipboardBuffer clipboard
+  - std::vector<std::function<void()>> undo_stack
+  - String command_input
+  - struct termios original_termios
+  + Editor(String filename)
+  + ~Editor()
+  + void run()
+  + void render()
+  + void clear_screen()
+  + void print_toolbar()
+  + void push_undo(std::function<void()> f)
+  + void undo_last()
+}
+
+class UnicodeSymbol {
+  - std::string symbol
+  - int length
+  + UnicodeSymbol()
+  + UnicodeSymbol(char c)
+  + UnicodeSymbol(const std::string& symbol)
+  + bool is_space()
+  + friend std::ostream& operator<<(std::ostream& os, const UnicodeSymbol& s)
+}
+
+class RegisterBuffer {
+  - std::map<char, Slice<char*>> registers
+  + RegisterBuffer()
+  + ~RegisterBuffer()
+  + void save_to_register(char reg_name)
+  + void paste_from_register(char reg_name, TextBuffer& target, int line_position) const
+  + void clear_registers()
+}
+
+class ClipboardBuffer {
+  - bool linewise
+  + ClipboardBuffer()
+  + ~ClipboardBuffer()
+  + void clear()
+  + void copy_from(const TextBuffer& source, int start_line, int end_line)
+  + void paste_into(TextBuffer& target, int line_position, int col_position) const
+  + void set_linewise(bool v)
+  + bool is_linewise() const
+}
+
+class TextBuffer {
+  - int current_pos_x
+  - int current_pos_y
+  - int prev_pos_x
+  - int top_screen_offset
+  - int right_screen_offset
+  - Slice<Slice<UnicodeSymbol>> data
+  - bool selection_active
+  - int sel_anchor_x
+  - int sel_anchor_y
+  + TextBuffer()
+  + ~TextBuffer()
+  + int get_current_pos_x() const
+  + int get_current_pos_y() const
+  + void next_symbol()
+  + void prev_symbol()
+  + void next_word()
+  + void prev_word()
+  + void next_line()
+  + void prev_line()
+  + void move_to_end()
+  + void move_to_begin()
+  + void end_line()
+  + void start_line()
+  + void cut_current_symbol()
+  + void cut_current_line()
+  + void new_line_after()
+  + void new_line_before()
+  + void save(String filename)
+  + friend std::ostream& operator<<(std::ostream& os, TextBuffer& buf)
+  + friend std::istream& operator>>(std::istream& is, TextBuffer& buf)
+}
+
+class Slice<T> {
+  - T* data
+  - int length
+  - int capacity
+  + Slice()
+  + Slice(unsigned int capacity)
+  + Slice(const Slice& other)
+  + Slice(Slice&& other) noexcept
+  + ~Slice()
+  + int get_length() const
+  + int get_capacity() const
+  + void clear()
+  + bool is_empty() const
+  + void push(const T& value)
+  + void push_after(const T& value, int index)
+  + void insert_at(int index, const T& value)
+  + T pop()
+  + T pop_at(int index)
+  + T& operator[](int index)
+  + const T& operator[](int index) const
+  + Slice& operator=(const Slice& other)
+  + Slice& operator=(Slice&& other) noexcept
+  + Iterator begin()
+  + Iterator end()
+  - void resize(int new_capacity)
+}
+
+class Command {
+  # Editor& editor
+  # String key_bind_pattern
+  # bool is_cancelable
+  + Command(Editor& editor, String key_bind_pattern, bool is_cancelable)
+  + virtual ~Command()
+  + virtual void execute(String combination) const = 0
+  + virtual void undo() const = 0
+}
+
+class OperatingMode {
+  # Editor& editor
+  # bool is_input_printable
+  + OperatingMode(Editor& editor, bool is_input_printable)
+  + virtual ~OperatingMode()
+  + virtual void exit() const = 0
+  + virtual void handle_input(String str) const = 0
+}
+
+class NormalMode {
+  - String name
+  - std::vector<std::unique_ptr<Command>> commands
+  + NormalMode(Editor& editor)
+  + ~NormalMode()
+  + void exit() const override
+  + void handle_input(String str) const override
+}
+
+class VisualMode {
+  - String name
+  - std::vector<std::unique_ptr<Command>> commands
+  - bool line_mode
+  + VisualMode(Editor& editor, bool line_mode = false)
+  + ~VisualMode()
+  + void exit() const override
+  + void handle_input(String str) const override
+}
+
+class InsertMode {
+  - String name
+  - std::vector<std::unique_ptr<Command>> commands
+  + InsertMode(Editor& editor)
+  + ~InsertMode()
+  + void exit() const override
+  + void handle_input(String str) const override
+}
+
+' Наследование
+OperatingMode <|-- NormalMode
+OperatingMode <|-- VisualMode
+OperatingMode <|-- InsertMode
+
+Command <|-- BasicMovement
+Command <|-- ChangeMode
+Command <|-- Edit
+
+' Композиция и агрегация
+Editor *-- OperatingMode
+Editor *-- TextBuffer
+Editor *-- ClipboardBuffer
+
+TextBuffer *-- Slice
+Slice *-- UnicodeSymbol
+
+ClipboardBuffer <|-- RegisterBuffer
+
+TextBuffer --> ClipboardBuffer : copy/paste
+
+NormalMode o-- Command
+VisualMode o-- Command
+InsertMode o-- Command
+
+' Зависимости
+Editor ..> OperatingMode : создает
+OperatingMode ..> Editor : использует
+Command ..> Editor : использует
+@enduml
