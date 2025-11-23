@@ -14,7 +14,7 @@ class OperatingMode {
     virtual ~OperatingMode() = default;
 
     virtual void exit() const = 0;
-    virtual void handle_input(String str) const = 0; // FIXME: здесь возвращать КОМАНДУ
+    virtual void handle_input(String str) const = 0;
 };
 
 #endif
