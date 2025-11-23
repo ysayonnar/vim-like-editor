@@ -111,9 +111,7 @@ void InsertMode::handle_input(String str) const {
         }
     } else {
         // Вставляем UnicodeSymbol в позицию курсора (допускается вставка в начало или в конец строки)
-        char ch = last_symbol;
-        std::string tmp(1, ch);
-        UnicodeSymbol symbol(tmp);
+        UnicodeSymbol symbol(str.get_c_style());
 
         auto &line = editor.buf.data[editor.buf.get_current_pos_y()];
         int idx = editor.buf.get_current_pos_x();
