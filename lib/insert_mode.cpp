@@ -17,27 +17,27 @@ void InsertMode::handle_input(String str) const {
         return;
     }
     if (last_symbol == '\n') {
-        // Split current line at cursor: everything after cursor becomes a new line
+        // Разбиваем текущую строку в позиции курсора: всё, что справа — в новую строку
         int y = editor.buf.get_current_pos_y();
         int x = editor.buf.get_current_pos_x();
         Slice<UnicodeSymbol> &cur_line = editor.buf.data[y];
         Slice<UnicodeSymbol> new_line;
 
-        // save original line for undo
+        // Сохраняем оригинал строки, чтобы можно было отменить операцию
         Slice<UnicodeSymbol> original = cur_line;
 
         int cur_len = cur_line.get_length();
-        // move symbols from cursor position to new_line
+        // Переносим символы, стоящие справа от курсора, в новую строку
         for (int i = x; i < cur_len; ++i) {
             new_line.push(cur_line[i]);
         }
 
-        // remove moved symbols from current line
+        // Удаляем перенесённые символы из исходной строки
         while (cur_line.get_length() > x) {
             cur_line.pop_at(x);
         }
 
-        // insert new line after current line
+        // Вставляем новую строку после текущей
         int total_lines = editor.buf.data.get_length();
         if (y >= total_lines - 1) {
             editor.buf.data.push(new_line);
@@ -45,17 +45,17 @@ void InsertMode::handle_input(String str) const {
             editor.buf.data.push_after(new_line, y);
         }
 
-        // move cursor to beginning of new line
+        // Перемещаем курсор в начало новой строки
         editor.buf.current_pos_x = 0;
         editor.buf.prev_pos_x = 0;
         editor.buf.next_line();
 
-        // push undo: restore original line and remove inserted line
+        // Добавляем действие в стек отмены: восстановить старую строку и удалить вставленную
         {
             Editor *ed = &editor;
             ed->push_undo([ed, y, original]() mutable {
                 ed->buf.data[y] = original;
-                // remove line y+1 if exists
+                // Удаляем строку y+1, если она существует
                 if (y + 1 < ed->buf.data.get_length()) {
                     ed->buf.data.pop_at(y + 1);
                 }
@@ -69,10 +69,10 @@ void InsertMode::handle_input(String str) const {
         }
 
         if (editor.buf.get_current_pos_x() == 0) {
-            // merge with previous line
+            // Сливаем текущую строку с предыдущей (Backspace в начале строки)
             int cur_y = editor.buf.get_current_pos_y();
             int prev_y = cur_y - 1;
-            // save originals for undo
+            // Сохраняем обе строки для отмены операции
             Slice<UnicodeSymbol> prev_orig = editor.buf.data[prev_y];
             Slice<UnicodeSymbol> cur_orig = editor.buf.data[cur_y];
             int old_length = prev_orig.get_length();
@@ -84,7 +84,7 @@ void InsertMode::handle_input(String str) const {
             editor.buf.prev_line();
             editor.buf.current_pos_x = old_length;
 
-            // push undo: restore prev and cur lines
+            // Добавляем откат: вернуть предыдущую и текущую строки в исходное состояние
             {
                 Editor *ed = &editor;
                 ed->push_undo([ed, prev_y, prev_orig, cur_orig]() mutable {
@@ -99,7 +99,7 @@ void InsertMode::handle_input(String str) const {
             editor.buf.data[y].pop_at(pos);
             editor.buf.prev_symbol();
 
-            // push undo: reinsert deleted symbol
+            // Добавляем откат: снова вставить удалённый символ
             {
                 Editor *ed = &editor;
                 ed->push_undo([ed, y, pos, deleted]() mutable {
@@ -110,7 +110,7 @@ void InsertMode::handle_input(String str) const {
             }
         }
     } else {
-        // Insert UnicodeSymbol at cursor position (allow insert before first and after last)
+        // Вставляем UnicodeSymbol в позицию курсора (допускается вставка в начало или в конец строки)
         char ch = last_symbol;
         std::string tmp(1, ch);
         UnicodeSymbol symbol(tmp);
@@ -118,12 +118,12 @@ void InsertMode::handle_input(String str) const {
         auto &line = editor.buf.data[editor.buf.get_current_pos_y()];
         int idx = editor.buf.get_current_pos_x();
 
-        // insert at idx (0..length). insert_at handles append when idx == length
+        // Вставляем по индексу idx (0..length). При idx == length выполняется добавление в конец
         int y = editor.buf.get_current_pos_y();
         line.insert_at(idx, symbol);
         editor.buf.next_symbol();
 
-        // push undo: remove inserted symbol
+        // Добавляем откат: удалить вставленный символ
         {
             Editor *ed = &editor;
             ed->push_undo([ed, y, idx]() mutable {

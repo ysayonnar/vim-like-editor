@@ -20,7 +20,7 @@ class Editor {
     std::ifstream file;
     TextBuffer buf;
     ClipboardBuffer clipboard;
-    // undo stack: functions that perform the inverse of an action
+    // Стек отмены: функции, выполняющие обратное действие для отката
     std::vector<std::function<void()>> undo_stack;
     String command_input = "";
     struct termios original_termios;

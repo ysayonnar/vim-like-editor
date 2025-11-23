@@ -12,7 +12,7 @@ void ClipboardBuffer::copy_from(const TextBuffer &source, int start_line, int en
     if (end_line >= source.data.get_length())
         end_line = source.data.get_length() - 1;
     for (int i = start_line; i <= end_line; ++i) {
-        // copy whole line -> linewise
+        // Копируем всю строку — это построчный буфер
         Slice<UnicodeSymbol> line_copy = source.data[i];
         data.push(line_copy);
     }
@@ -29,10 +29,10 @@ void ClipboardBuffer::paste_into(TextBuffer &target, int line_position, int col_
             target.data.push_after(data[i], insert_at + i);
         }
     } else {
-        // char-wise: insert characters of the first clipboard entry into target at (line_position, col_position)
+        // По символам: вставляем символы из первой записи буфера в target на (line_position, col_position)
         if (data.get_length() >= 1) {
             Slice<UnicodeSymbol> chars = data[0];
-            // insert each symbol into target.data[line_position] at col_position
+            // Вставляем каждый символ в строку target по смещению col_position
             for (int i = 0; i < chars.get_length(); ++i) {
                 target.data[line_position].insert_at(col_position + i, chars[i]);
             }

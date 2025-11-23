@@ -26,7 +26,7 @@ void CutLine::execute(String combination) const {
         end_line = editor.buf.data.get_length() - 1;
     }
 
-    // copy lines to clipboard and save for undo
+    // Копируем строки в буфер обмена и сохраняем их для возможности отката
     editor.clipboard.clear();
     editor.clipboard.set_linewise(true);
     std::vector<Slice<UnicodeSymbol>> saved_lines;
@@ -35,7 +35,7 @@ void CutLine::execute(String combination) const {
         saved_lines.push_back(editor.buf.data[i]);
     }
 
-    // push undo: reinsert saved_lines at start_line
+    // Добавляем откат: вставить сохранённые строки обратно, начиная с start_line
     {
         Editor *ed = &editor;
         auto saved = saved_lines;
@@ -46,7 +46,7 @@ void CutLine::execute(String combination) const {
         });
     }
 
-    // remove lines
+    // Удаляем строки из буфера
     for (int i = 0; i < times_to_repeat; i++) {
         editor.buf.cut_current_line();
     }
@@ -77,14 +77,14 @@ void SaveQuit::execute(String combination) const {
 }
 
 void Paste::execute(String combination) const {
-    // Paste at current cursor position
+    // Вставка содержимого буфера обмена в текущую позицию курсора
     int line = editor.buf.get_current_pos_y();
     int col = editor.buf.get_current_pos_x();
-    // perform paste
+    // Выполняем вставку
     if (editor.clipboard.is_linewise()) {
         int inserted = editor.clipboard.data.get_length();
         editor.clipboard.paste_into(editor.buf, line, col);
-        // undo: remove inserted lines
+        // Добавляем откат: удалить вставленные строки
         {
             Editor *ed = &editor;
             ed->push_undo([ed, line, inserted]() mutable {
@@ -94,13 +94,13 @@ void Paste::execute(String combination) const {
             });
         }
     } else {
-        // char-wise
+        // По символам (не построчно)
         int chars = editor.clipboard.data.get_length() > 0 ? editor.clipboard.data[0].get_length() : 0;
         editor.clipboard.paste_into(editor.buf, line, col);
         {
             Editor *ed = &editor;
             ed->push_undo([ed, line, col, chars]() mutable {
-                // remove inserted chars
+                // Удаляем вставленные символы при откате
                 for (int i = 0; i < chars; ++i) {
                     ed->buf.data[line].pop_at(col);
                 }

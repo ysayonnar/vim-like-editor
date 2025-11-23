@@ -17,6 +17,4 @@ class OperatingMode {
     virtual void handle_input(String str) const = 0; // FIXME: здесь возвращать КОМАНДУ
 };
 
-// TODO: в классе каждой команды будет мой самописный шаблон вектора, где будyт хранится команды
-
 #endif

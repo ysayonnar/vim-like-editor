@@ -8,7 +8,7 @@ VisualMode::VisualMode(Editor &editor, bool line_mode) : OperatingMode(editor, t
     editor.buf.selection_active = true;
     if (line_mode) {
         editor.buf.sel_anchor_y = editor.buf.get_current_pos_y();
-        editor.buf.sel_anchor_x = 0; // start of line
+        editor.buf.sel_anchor_x = 0; // начало строки
         editor.buf.current_pos_x = editor.buf.data[editor.buf.get_current_pos_y()].get_length();
     } else {
         editor.buf.sel_anchor_x = editor.buf.get_current_pos_x();
@@ -24,13 +24,13 @@ void VisualMode::exit() const {
 void VisualMode::handle_input(String str) const {
     char last_symbol = str[str.get_length() - 1];
 
-    if (last_symbol == 27) { // ESC
+    if (last_symbol == 27) { // ESC (Escape)
         editor.command_input = "";
         exit();
         return;
     }
 
-    // movement keys
+    // Клавиши передвижения
     if (last_symbol == 'h') {
         editor.buf.prev_symbol();
     } else if (last_symbol == 'l') {
@@ -44,7 +44,7 @@ void VisualMode::handle_input(String str) const {
     } else if (last_symbol == 'b') {
         editor.buf.prev_word();
     } else if (last_symbol == 'y') {
-        // Yank selection
+        // Копируем (yank) выделение в буфер обмена
         int ay = editor.buf.sel_anchor_y;
         int ax = editor.buf.sel_anchor_x;
         int by = editor.buf.get_current_pos_y();
@@ -81,7 +81,7 @@ void VisualMode::handle_input(String str) const {
         editor.operating_mode = new NormalMode(editor);
         return;
     } else if (last_symbol == 'd') {
-        // Delete visual selection: copy to clipboard and remove selected text
+        // Удаляем выделение: копируем в буфер обмена и удаляем выбранный фрагмент
         int ay = editor.buf.sel_anchor_y;
         int ax = editor.buf.sel_anchor_x;
         int by = editor.buf.get_current_pos_y();
@@ -98,7 +98,7 @@ void VisualMode::handle_input(String str) const {
         if (sY == eY && sX == eX)
             return;
 
-        // save original full lines for undo
+        // Сохраняем полные строки перед удалением, чтобы можно было откатить операцию
         std::vector<Slice<UnicodeSymbol>> saved_full_lines;
         for (int ln = sY; ln <= eY; ++ln)
             saved_full_lines.push_back(editor.buf.data[ln]);
@@ -119,18 +119,18 @@ void VisualMode::handle_input(String str) const {
                     editor.buf.data[sY].pop_at(i);
             }
         } else {
-            // first partial line
+            // Первая частичная строка (в начале выделения)
             Slice<UnicodeSymbol> first_part;
             int first_len = editor.buf.data[sY].get_length();
             for (int i = sX; i < first_len; ++i)
                 first_part.push(editor.buf.data[sY][i]);
             editor.clipboard.data.push(first_part);
 
-            // middle full lines
+            // Полные строки, полностью попавшие в выделение (средние)
             for (int line = sY + 1; line < eY; ++line)
                 editor.clipboard.data.push(editor.buf.data[line]);
 
-            // last partial line
+            // Последняя частичная строка (в конце выделения)
             Slice<UnicodeSymbol> last_part;
             int last_len = editor.buf.data[eY].get_length();
             int end_idx = std::min(eX, last_len);
@@ -139,7 +139,7 @@ void VisualMode::handle_input(String str) const {
             editor.clipboard.data.push(last_part);
             editor.clipboard.set_linewise(true);
 
-            // build merged line = prefix of sY (0..sX-1) + suffix of eY (eX..end)
+            // Формируем объединённую строку: префикс из sY + суффикс из eY
             Slice<UnicodeSymbol> merged;
             for (int i = 0; i < sX && i < editor.buf.data[sY].get_length(); ++i)
                 merged.push(editor.buf.data[sY][i]);
@@ -148,13 +148,13 @@ void VisualMode::handle_input(String str) const {
 
             editor.buf.data[sY] = merged;
 
-            // remove lines sY+1 .. eY
+            // Удаляем строки с sY+1 по eY
             int remove_count = eY - sY;
             for (int r = 0; r < remove_count; ++r)
                 editor.buf.data.pop_at(sY + 1);
         }
 
-        // move cursor to start of selection
+        // Перемещаем курсор в начало области выделения
         editor.buf.current_pos_y = sY;
         editor.buf.current_pos_x = sX;
         int new_len = editor.buf.data[sY].get_length();
@@ -163,14 +163,14 @@ void VisualMode::handle_input(String str) const {
 
         editor.buf.selection_active = false;
 
-        // push undo: restore saved_full_lines at sY
+        // Добавляем действие отката: восстановить сохранённые строки начиная с sY
         {
             Editor *ed = &editor;
             auto saved = saved_full_lines; // copy
             ed->push_undo([ed, sY, saved]() mutable {
-                // restore first line
+                // Восстанавливаем первую строку
                 ed->buf.data[sY] = saved[0];
-                // insert remaining lines after sY
+                // Вставляем остальные строки после sY
                 for (int i = 1; i < (int)saved.size(); ++i) {
                     ed->buf.data.push_after(saved[i], sY + i - 1);
                 }
@@ -183,11 +183,11 @@ void VisualMode::handle_input(String str) const {
         exit();
         return;
     } else {
-        // ignore other keys
+        // Игнорируем прочие клавиши
         return;
     }
 
-    // ensure selection remains active
+    // Обеспечиваем, что выделение остаётся активным
     editor.buf.selection_active = true;
     return;
 }

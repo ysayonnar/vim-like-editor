@@ -26,7 +26,7 @@ bool compare_commands(String command, String pattern) {
 }
 
 void NormalMode::exit() const {
-    // TODO: placeholder implementation
+    // Заглушка: обработка выхода из NORMAL-режима
     std::cout << "Exiting NORMAL mode" << std::endl;
 }
 

@@ -1,10 +1,10 @@
 #ifndef COLORS_H
 #define COLORS_H
 
-// Reset
+// Сброс формата
 #define COLOR_RESET "\033[0m"
 
-// Regular colors
+// Обычные цвета
 #define COLOR_BLACK "\033[30m"
 #define COLOR_RED "\033[31m"
 #define COLOR_GREEN "\033[32m"
@@ -14,7 +14,7 @@
 #define COLOR_CYAN "\033[36m"
 #define COLOR_WHITE "\033[37m"
 
-// Bright colors
+// Яркие цвета
 #define COLOR_BRIGHT_BLACK "\033[90m"
 #define COLOR_BRIGHT_RED "\033[91m"
 #define COLOR_BRIGHT_GREEN "\033[92m"
@@ -24,7 +24,7 @@
 #define COLOR_BRIGHT_CYAN "\033[96m"
 #define COLOR_BRIGHT_WHITE "\033[97m"
 
-// Background colors
+// Цвета фона
 #define COLOR_BG_BLACK "\033[40m"
 #define COLOR_BG_RED "\033[41m"
 #define COLOR_BG_GREEN "\033[42m"
@@ -34,7 +34,7 @@
 #define COLOR_BG_CYAN "\033[46m"
 #define COLOR_BG_WHITE "\033[47m"
 
-// Bright background colors
+// Яркие цвета фона
 #define COLOR_BG_BRIGHT_BLACK "\033[100m"
 #define COLOR_BG_BRIGHT_RED "\033[101m"
 #define COLOR_BG_BRIGHT_GREEN "\033[102m"
@@ -44,7 +44,7 @@
 #define COLOR_BG_BRIGHT_CYAN "\033[106m"
 #define COLOR_BG_BRIGHT_WHITE "\033[107m"
 
-// Text styles
+// Стили текста
 #define STYLE_BOLD "\033[1m"
 #define STYLE_DIM "\033[2m"
 #define STYLE_ITALIC "\033[3m"
@@ -54,7 +54,7 @@
 #define STYLE_HIDDEN "\033[8m"
 #define STYLE_STRIKETHROUGH "\033[9m"
 
-// Cursor control
+// Управление курсором / очистка экрана
 #define CURSOR_HOME "\033[H"
 #define CLEAR_SCREEN "\033[2J"
 #define CLEAR_LINE "\033[2K"

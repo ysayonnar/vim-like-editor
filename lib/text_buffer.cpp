@@ -24,11 +24,11 @@ void TextBuffer::next_symbol() {
         return;
     }
 
-    // allow cursor to move one position past the last symbol (i.e., at index == line_length)
+    // Разрешаем курсору находиться на позиции сразу после последнего символа (индекс == длина строки)
     if (current_pos_x < line_length) {
         current_pos_x++;
     } else {
-        // already at or past end; clamp to end
+        // Уже у или за концом строки — зафиксируем позицию в конце
         current_pos_x = line_length;
     }
     prev_pos_x = current_pos_x;
@@ -68,7 +68,7 @@ void TextBuffer::next_line() {
         current_pos_x = 0;
     } else {
         int preferred = prev_pos_x;
-        // allow preferred to be at most line_length (one-past-end)
+        // Предпочтительная позиция курсора не может превышать длину строки (разрешена позиция «после конца»)
         if (preferred > line_length) {
             current_pos_x = line_length;
         } else {
@@ -236,9 +236,9 @@ void TextBuffer::new_line_before() {
 }
 
 void TextBuffer::end_line() {
-    // move cursor to after-end position (one-past-last) for $ command
+    // Перемещаем курсор на позицию «после конца строки» (поведение команды $)
     int len = data[current_pos_y].get_length();
-    current_pos_x = len; // position after last character
+    current_pos_x = len; // позиция сразу после последнего символа
 
     struct winsize w;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
@@ -336,13 +336,13 @@ std::ostream &operator<<(std::ostream &os, TextBuffer &buf) {
                 return col <= end_index;
             }
 
-            // fully selected middle lines: any existing character
+            // Для полностью выделенных строк выделяются все существующие символы
             return col < line_len;
         };
 
         for (int j = start; j < end; j++) {
             if (is_selected_pos(i, j)) {
-                // gray background for selection, white text
+                // Серый фон для выделения, белый цвет текста
                 std::cout << COLOR_BG_BRIGHT_BLACK << COLOR_WHITE << buf.data[i][j] << COLOR_RESET;
             } else if (i == buf.current_pos_y && j == buf.current_pos_x) {
                 std::cout << COLOR_BG_WHITE << COLOR_BLACK << buf.data[i][j] << COLOR_RESET;
@@ -352,9 +352,9 @@ std::ostream &operator<<(std::ostream &os, TextBuffer &buf) {
             printed++;
         }
 
-        // If cursor is in after-end position (one-past-last) and visible on screen, draw a highlighted space as marker
+        // Если курсор стоит на позиции «после конца» и видим на экране, покажем подсвеченный пробел-метку
         if (i == buf.current_pos_y && buf.current_pos_x == len && buf.current_pos_x >= buf.right_screen_offset && buf.current_pos_x < buf.right_screen_offset + visible) {
-            int target_col = buf.current_pos_x - buf.right_screen_offset; // zero-based
+            int target_col = buf.current_pos_x - buf.right_screen_offset; // индекс в пределах видимой области (с нуля)
             int pad = target_col - printed;
             for (int p = 0; p < pad; ++p)
                 std::cout << ' ';
