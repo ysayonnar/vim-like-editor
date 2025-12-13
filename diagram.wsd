@@ -1,8 +1,6 @@
 @startuml
 skinparam linetype ortho
 
-
-
 skinparam class {
     BackgroundColor White
     BorderColor Black
@@ -18,7 +16,7 @@ hide circle
 hide empty members
 
 skinparam {
-    ClassAttributeIconSize 0
+    ClassAttributeIconSize 1
     ClassMethodIconSize 0
 }
 
