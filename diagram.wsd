@@ -182,10 +182,6 @@ OperatingMode <|-- NormalMode
 OperatingMode <|-- VisualMode
 OperatingMode <|-- InsertMode
 
-Command <|-- BasicMovement
-Command <|-- ChangeMode
-Command <|-- Edit
-
 ' Композиция и агрегация
 Editor *-- OperatingMode
 Editor *-- TextBuffer
@@ -196,14 +192,8 @@ Slice *-- UnicodeSymbol
 
 ClipboardBuffer <|-- RegisterBuffer
 
-TextBuffer --> ClipboardBuffer : copy/paste
-
 NormalMode o-- Command
 VisualMode o-- Command
 InsertMode o-- Command
 
-' Зависимости
-Editor ..> OperatingMode : создает
-OperatingMode ..> Editor : использует
-Command ..> Editor : использует
 @enduml
