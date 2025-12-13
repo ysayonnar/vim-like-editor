@@ -4,11 +4,13 @@
 #include <stdexcept>
 
 int main(int argc, char *argv[]) {
+	// получение имени файла из аргументов командной строки
     if (argc < 2) {
         std::cout << "you need to provide filename" << std::endl;
         return 1;
     }
 
+	// создание редактора
     Editor editor(argv[1]);
     try {
         editor.run();

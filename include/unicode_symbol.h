@@ -17,6 +17,7 @@ class UnicodeSymbol {
     UnicodeSymbol(const std::string &symbol) : symbol(symbol), length(static_cast<int>(symbol.length())) {}
     ~UnicodeSymbol() = default;
 
+	// проверка, является ли символ пробелом
     bool is_space() {
         return std::strcmp(symbol.c_str(), " ") == 0;
     }
